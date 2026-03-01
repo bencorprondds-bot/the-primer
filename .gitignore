@@ -1,0 +1,46 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+
+# build
+dist/
+*.tsbuildinfo
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# ide
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# os
+.DS_Store
+Thumbs.db
+
+# turbo
+.turbo/
+
+# prisma
+prisma/migrations/**/migration_lock.toml
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# docker
+*.log
+
+# test
+coverage/
+.nyc_output/

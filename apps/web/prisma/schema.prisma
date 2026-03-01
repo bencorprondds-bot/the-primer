@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Users ────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  PARENT
+  GUIDE
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentProfile StudentProfile?
+  parentProfile  ParentProfile?
+  guideProfile   GuideProfile?
+  enrollments    Enrollment[]
+  masteryStates  StudentMasteryState[]
+  responses      ProblemResponse[]
+  fsrsCards      FsrsCardState[]
+  tutorSessions  TutorSession[]
+}
+
+model StudentProfile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gradeLevel       Int
+  parentConsentAt  DateTime?
+  consentMethod    String?   // 'credit_card' | 'signed_form' | 'video_conference'
+  parentId         String?   // links to parent's User.id
+}
+
+model ParentProfile {
+  id       String   @id @default(cuid())
+  userId   String   @unique
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childIds String[] // User.id references
+}
+
+model GuideProfile {
+  id     String  @id @default(cuid())
+  userId String  @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio    String?
+}
+
+// ─── Curriculum Structure ────────────────────────────────────
+
+enum Subject {
+  MATH
+  SCIENCE
+  ELA
+  SOCIAL_STUDIES
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  subject     Subject
+  gradeLevel  Int[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  modules     Module[]
+  enrollments Enrollment[]
+}
+
+model Module {
+  id         String   @id @default(cuid())
+  courseId    String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title      String
+  orderIndex Int
+  createdAt  DateTime @default(now())
+
+  lessons Lesson[]
+
+  @@unique([courseId, orderIndex])
+}
+
+model Lesson {
+  id         String   @id @default(cuid())
+  moduleId   String
+  module     Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title      String
+  content    String?  // Markdown with KaTeX
+  orderIndex Int
+  createdAt  DateTime @default(now())
+
+  problems Problem[]
+
+  @@unique([moduleId, orderIndex])
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId    String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+// ─── Knowledge Components ────────────────────────────────────
+
+model KnowledgeComponent {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "Distributive Property"
+  description String?
+  subject     Subject
+  gradeLevel  Int[]
+  createdAt   DateTime @default(now())
+
+  prerequisites KCPrerequisite[] @relation("dependent")
+  dependents    KCPrerequisite[] @relation("prerequisite")
+  problemKCs    ProblemKC[]
+  masteryStates StudentMasteryState[]
+  fsrsCards     FsrsCardState[]
+}
+
+model KCPrerequisite {
+  prerequisiteId String
+  dependentId    String
+  prerequisite   KnowledgeComponent @relation("prerequisite", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+  dependent      KnowledgeComponent @relation("dependent", fields: [dependentId], references: [id], onDelete: Cascade)
+
+  @@id([prerequisiteId, dependentId])
+}
+
+// ─── Problems ────────────────────────────────────────────────
+
+model Problem {
+  id         String   @id @default(cuid())
+  lessonId   String
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title      String
+  difficulty Int      @default(1) // 1-5
+  content    Json     // Full problem JSON (steps, hints, answers)
+  orderIndex Int
+  createdAt  DateTime @default(now())
+
+  kcs       ProblemKC[]
+  responses ProblemResponse[]
+
+  @@unique([lessonId, orderIndex])
+}
+
+model ProblemKC {
+  problemId String
+  kcId      String
+  problem   Problem            @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  kc        KnowledgeComponent @relation(fields: [kcId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, kcId])
+}
+
+// ─── Mastery Tracking (BKT) ─────────────────────────────────
+
+model StudentMasteryState {
+  id            String    @id @default(cuid())
+  studentId     String
+  student       User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kcId          String
+  kc            KnowledgeComponent @relation(fields: [kcId], references: [id], onDelete: Cascade)
+  pMastery      Float     @default(0.1)
+  pInit         Float     @default(0.1)
+  pTransit      Float     @default(0.2)
+  pSlip         Float     @default(0.1)
+  pGuess        Float     @default(0.25)
+  totalAttempts Int       @default(0)
+  correctCount  Int       @default(0)
+  lastAttemptAt DateTime?
+  masteredAt    DateTime? // null until P(L) >= threshold
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([studentId, kcId])
+}
+
+model ProblemResponse {
+  id            String   @id @default(cuid())
+  studentId     String
+  student       User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  problemId     String
+  problem       Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  stepIndex     Int
+  kcId          String?
+  correct       Boolean
+  responseTime  Int      // milliseconds
+  hintsUsed     Int      @default(0)
+  attemptNumber Int
+  createdAt     DateTime @default(now())
+}
+
+// ─── Spaced Repetition (FSRS) ────────────────────────────────
+
+model FsrsCardState {
+  id           String    @id @default(cuid())
+  studentId    String
+  student      User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kcId         String
+  kc           KnowledgeComponent @relation(fields: [kcId], references: [id], onDelete: Cascade)
+  state        Int       @default(0) // 0=New, 1=Learning, 2=Review, 3=Relearning
+  stability    Float     @default(0)
+  difficulty   Float     @default(0)
+  reps         Int       @default(0)
+  lapses       Int       @default(0)
+  dueDate      DateTime
+  lastReviewAt DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([studentId, kcId])
+}
+
+// ─── AI Tutor Sessions ───────────────────────────────────────
+
+model TutorSession {
+  id            String   @id @default(cuid())
+  studentId     String
+  student       User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  problemId     String?
+  model         String   // 'claude-haiku-4.5' | 'phi-4-mini-reasoning'
+  messages      Json     // Array of { role, content, timestamp }
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  startedAt     DateTime @default(now())
+  endedAt       DateTime?
+}
+
+// ─── Engagement Tracking ─────────────────────────────────────
+
+enum EngagementEventType {
+  SESSION_START
+  SESSION_END
+  TAB_HIDDEN
+  TAB_VISIBLE
+  IDLE_START
+  IDLE_END
+  PROBLEM_START
+  PROBLEM_COMPLETE
+  HINT_REQUESTED
+  TUTOR_OPENED
+}
+
+model EngagementEvent {
+  id        String               @id @default(cuid())
+  studentId String
+  eventType EngagementEventType
+  metadata  Json?                // Flexible: scroll depth, time deltas, etc.
+  createdAt DateTime             @default(now())
+
+  @@index([studentId, createdAt])
+}
+
+model EngagementAggregate {
+  id              String   @id @default(cuid())
+  studentId       String
+  date            DateTime @db.Date
+  activeMinutes   Float    @default(0)
+  idleMinutes     Float    @default(0)
+  problemsAttempted Int    @default(0)
+  problemsCompleted Int    @default(0)
+  hintsUsed       Int      @default(0)
+  tutorSessions   Int      @default(0)
+
+  @@unique([studentId, date])
+}
+
+// ─── Audit Trail (FERPA) ─────────────────────────────────────
+
+model DataAccessLog {
+  id        String   @id @default(cuid())
+  userId    String   // who accessed the data
+  studentId String   // whose data was accessed
+  action    String   // 'view_mastery', 'view_chat_log', 'export', 'delete'
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([studentId, createdAt])
+}

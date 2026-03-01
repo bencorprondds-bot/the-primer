@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: primer-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: primer
+      POSTGRES_PASSWORD: primer
+      POSTGRES_DB: primer
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U primer"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: primer-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: primer-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    profiles:
+      - ai  # Only starts with: docker compose --profile ai up
+
+  adaptive-engine:
+    build:
+      context: ./services/adaptive-engine
+      dockerfile: Dockerfile
+    container_name: primer-adaptive
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://primer:primer@postgres:5432/primer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - engine  # Only starts with: docker compose --profile engine up
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
