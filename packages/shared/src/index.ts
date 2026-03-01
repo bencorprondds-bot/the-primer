@@ -2,6 +2,19 @@
  * Shared types, constants, and validators for The Primer platform.
  */
 
+// Re-export content schema
+export {
+  type KCDefinition,
+  type HintDefinition,
+  type StepDefinition,
+  type ProblemDefinition,
+  type LessonDefinition,
+  type ModuleDefinition,
+  type CourseDefinition,
+  type ValidationError,
+  validateCourse,
+} from "./content-schema";
+
 // ─── Constants ───────────────────────────────────────────────
 
 /** BKT mastery threshold. When P(L) >= this, the KC is considered mastered. */

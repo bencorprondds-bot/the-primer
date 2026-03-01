@@ -1,0 +1,546 @@
+{
+  "id": "tx-math-g5",
+  "title": "Texas Grade 5 Mathematics",
+  "description": "Grade 5 mathematics aligned to Texas Essential Knowledge and Skills (TEKS). Covers numbers and operations including place value, multi-digit multiplication and division, decimal operations, and fraction operations.",
+  "subject": "MATH",
+  "gradeLevels": [5],
+  "standardsAlignment": "Texas Essential Knowledge and Skills (TEKS) 2024",
+  "license": "Original content, MIT License",
+  "knowledgeComponents": [
+    {
+      "id": "kc_place_value_decimals",
+      "name": "Place Value Through Thousandths",
+      "description": "Represent the value of a digit in decimals through the thousandths place using expanded notation and numerals. Understand that a digit in one place represents 10 times what it represents in the place to its right and 1/10 of what it represents in the place to its left.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": [],
+      "teksCode": "5.2A"
+    },
+    {
+      "id": "kc_compare_decimals",
+      "name": "Compare and Order Decimals",
+      "description": "Compare and order two decimals to thousandths and represent comparisons using the symbols >, <, or =.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": ["kc_place_value_decimals"],
+      "teksCode": "5.2B"
+    },
+    {
+      "id": "kc_round_decimals",
+      "name": "Round Decimals",
+      "description": "Round decimals to tenths or hundredths.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": ["kc_place_value_decimals"],
+      "teksCode": "5.2C"
+    },
+    {
+      "id": "kc_estimation",
+      "name": "Estimate Solutions",
+      "description": "Estimate to determine solutions to mathematical and real-world problems involving addition, subtraction, multiplication, or division.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": ["kc_round_decimals"],
+      "teksCode": "5.3A"
+    },
+    {
+      "id": "kc_multiply_3by2",
+      "name": "Multiply 3-Digit by 2-Digit",
+      "description": "Multiply with fluency a three-digit number by a two-digit number using the standard algorithm.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": [],
+      "teksCode": "5.3B"
+    },
+    {
+      "id": "kc_divide_4by2",
+      "name": "Divide 4-Digit by 2-Digit",
+      "description": "Solve with proficiency for quotients of up to a four-digit dividend by a two-digit divisor using strategies and the standard algorithm.",
+      "subject": "MATH",
+      "gradeLevels": [5],
+      "prerequisites": ["kc_multiply_3by2"],
+      "teksCode": "5.3C"
+    }
+  ],
+  "modules": [
+    {
+      "id": "mod_place_value",
+      "title": "Place Value and Decimals",
+      "description": "Understanding decimal place value through thousandths, comparing, ordering, and rounding decimals.",
+      "lessons": [
+        {
+          "id": "lesson_pv_01",
+          "title": "Understanding Place Value Through Thousandths",
+          "content": "Every digit in a number has a value based on its position. In the number $3.456$, the $3$ is in the ones place, the $4$ is in the tenths place, the $5$ is in the hundredths place, and the $6$ is in the thousandths place.\n\nEach place is 10 times the value of the place to its right, and $\\frac{1}{10}$ the value of the place to its left.\n\nWe can write numbers in **expanded form** to show the value of each digit:\n$$3.456 = 3 + 0.4 + 0.05 + 0.006$$",
+          "problems": [
+            {
+              "id": "prob_pv_001",
+              "title": "Identify the Value of a Digit",
+              "difficulty": 1,
+              "context": "Look at the number $7.293$.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "What is the value of the digit $9$ in $7.293$?",
+                  "correctAnswer": "0.09",
+                  "acceptableFormats": ["0.09", ".09", "9/100", "9 hundredths"],
+                  "kcs": ["kc_place_value_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "What place is the $9$ in? Count the positions after the decimal point: tenths, hundredths, thousandths..." },
+                    { "type": "more_specific", "content": "The $9$ is in the hundredths place. If a digit is in the hundredths place, its value is the digit times $0.01$." },
+                    { "type": "bottom_out", "content": "The $9$ is in the hundredths place, so its value is $9 \\times 0.01 = 0.09$." }
+                  ],
+                  "explanation": "In $7.293$, the $9$ is two places after the decimal point (hundredths place), so its value is $0.09$."
+                }
+              ]
+            },
+            {
+              "id": "prob_pv_002",
+              "title": "Write in Expanded Form",
+              "difficulty": 2,
+              "context": "Consider the number $4.518$.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "What is the value of the digit $5$ in $4.518$?",
+                  "correctAnswer": "0.5",
+                  "acceptableFormats": ["0.5", ".5", "5/10", "5 tenths"],
+                  "kcs": ["kc_place_value_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "The $5$ is the first digit after the decimal point. What place is that?" },
+                    { "type": "bottom_out", "content": "The first position after the decimal is the tenths place. So $5$ in the tenths place = $0.5$." }
+                  ]
+                },
+                {
+                  "id": "step_2",
+                  "prompt": "Write $4.518$ in expanded form: $4 + \\_\\_ + \\_\\_ + \\_\\_$",
+                  "correctAnswer": "4 + 0.5 + 0.01 + 0.008",
+                  "acceptableFormats": ["4 + 0.5 + 0.01 + 0.008", "4+0.5+0.01+0.008"],
+                  "kcs": ["kc_place_value_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Break each digit into its place value. The $4$ is ones, the $5$ is tenths, the $1$ is hundredths, and the $8$ is..." },
+                    { "type": "more_specific", "content": "Ones: $4$. Tenths: $0.5$. Hundredths: $0.01$. Thousandths: the $8$ is in the thousandths place, so..." },
+                    { "type": "bottom_out", "content": "$4.518 = 4 + 0.5 + 0.01 + 0.008$" }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_pv_003",
+              "title": "10 Times Relationship",
+              "difficulty": 2,
+              "context": "In the number $0.555$, the digit $5$ appears in three different places.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "The $5$ in the tenths place is how many times the value of the $5$ in the hundredths place?",
+                  "correctAnswer": "10",
+                  "acceptableFormats": ["10", "ten", "10 times"],
+                  "kcs": ["kc_place_value_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "What is the value of $5$ in the tenths place? What is the value of $5$ in the hundredths place? Divide the larger by the smaller." },
+                    { "type": "more_specific", "content": "Tenths: $0.5$. Hundredths: $0.05$. What is $0.5 \\div 0.05$?" },
+                    { "type": "bottom_out", "content": "$0.5 \\div 0.05 = 10$. Each place to the left is $10$ times the place to its right." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_pv_004",
+              "title": "Identify the Digit Given Its Value",
+              "difficulty": 2,
+              "context": "A number has a $6$ in the thousandths place.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "What is the value of that digit?",
+                  "correctAnswer": "0.006",
+                  "acceptableFormats": ["0.006", ".006", "6/1000", "6 thousandths"],
+                  "kcs": ["kc_place_value_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "The thousandths place is the third position after the decimal. Each position represents a power of $\\frac{1}{10}$." },
+                    { "type": "bottom_out", "content": "Thousandths means $\\frac{6}{1000} = 0.006$." }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lesson_pv_02",
+          "title": "Comparing and Ordering Decimals",
+          "content": "To compare decimals, start from the left and compare digits in the same place value position.\n\nFor example, to compare $3.45$ and $3.54$:\n- Ones place: both have $3$ (equal)\n- Tenths place: $4 < 5$\n- So $3.45 < 3.54$\n\nAlways line up the decimal points and compare place by place from left to right.",
+          "problems": [
+            {
+              "id": "prob_cd_001",
+              "title": "Compare Two Decimals",
+              "difficulty": 1,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Which symbol makes this true? $0.35$ ___ $0.305$. Use >, <, or =.",
+                  "correctAnswer": ">",
+                  "acceptableFormats": [">", "greater than"],
+                  "kcs": ["kc_compare_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Line up the decimal points and compare digit by digit. It helps to write $0.350$ and $0.305$ so they have the same number of digits." },
+                    { "type": "more_specific", "content": "Tenths: both have $3$. Hundredths: $5$ vs $0$. Which is larger?" },
+                    { "type": "bottom_out", "content": "$0.350$ has $5$ in the hundredths place while $0.305$ has $0$. Since $5 > 0$, we get $0.35 > 0.305$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_cd_002",
+              "title": "Compare Decimals with Different Lengths",
+              "difficulty": 2,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Which symbol makes this true? $0.6$ ___ $0.60$. Use >, <, or =.",
+                  "correctAnswer": "=",
+                  "acceptableFormats": ["=", "equal", "equals"],
+                  "kcs": ["kc_compare_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Try writing both numbers with the same number of decimal places. What is $0.6$ written to the hundredths?" },
+                    { "type": "bottom_out", "content": "$0.6 = 0.60$. Adding a zero to the end of a decimal does not change its value." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_cd_003",
+              "title": "Order Three Decimals",
+              "difficulty": 3,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Order these from least to greatest: $0.45$, $0.405$, $0.5$",
+                  "correctAnswer": "0.405, 0.45, 0.5",
+                  "acceptableFormats": ["0.405, 0.45, 0.5", "0.405 0.45 0.5", ".405, .45, .5"],
+                  "kcs": ["kc_compare_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "First, write all three with the same number of decimal places: $0.450$, $0.405$, $0.500$. Now compare." },
+                    { "type": "more_specific", "content": "Tenths place: $4, 4, 5$. The number starting with $5$ tenths ($0.500$) is the largest. For the two with $4$ tenths, compare hundredths: $5$ vs $0$." },
+                    { "type": "bottom_out", "content": "$0.405 < 0.450 < 0.500$, so the order is $0.405, 0.45, 0.5$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_cd_004",
+              "title": "Compare in Context",
+              "difficulty": 3,
+              "context": "Maria ran the 100-meter dash in $12.08$ seconds. Kenji ran it in $12.1$ seconds.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Who ran faster? (In a race, the faster runner has the _____ time.)",
+                  "correctAnswer": "lower",
+                  "acceptableFormats": ["lower", "smaller", "less", "shorter"],
+                  "kcs": ["kc_compare_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "In a race, does a higher time or a lower time mean you ran faster?" },
+                    { "type": "bottom_out", "content": "A faster runner takes less time. So the faster runner has the lower time." }
+                  ]
+                },
+                {
+                  "id": "step_2",
+                  "prompt": "Compare: $12.08$ ___ $12.1$. Who ran faster, Maria or Kenji?",
+                  "correctAnswer": "Maria",
+                  "acceptableFormats": ["Maria", "maria"],
+                  "kcs": ["kc_compare_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Write both with the same decimal places: $12.08$ and $12.10$. Compare the hundredths." },
+                    { "type": "more_specific", "content": "$12.08 < 12.10$ because $8$ hundredths $< 10$ hundredths." },
+                    { "type": "bottom_out", "content": "$12.08 < 12.10$, so Maria's time is lower. Maria ran faster." }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lesson_pv_03",
+          "title": "Rounding Decimals",
+          "content": "To round a decimal:\n1. Find the place you're rounding to\n2. Look at the digit to the right\n3. If it's 5 or more, round up. If it's less than 5, round down.\n\nExample: Round $3.467$ to the nearest tenth.\n- Tenths digit: $4$\n- Digit to the right (hundredths): $6$\n- Since $6 \\geq 5$, round up: $3.467 \\approx 3.5$",
+          "problems": [
+            {
+              "id": "prob_rd_001",
+              "title": "Round to Nearest Tenth",
+              "difficulty": 1,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Round $6.734$ to the nearest tenth.",
+                  "correctAnswer": "6.7",
+                  "acceptableFormats": ["6.7", "6.70"],
+                  "kcs": ["kc_round_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "The tenths digit is $7$. What digit is to the right of it? Is it $5$ or more, or less than $5$?" },
+                    { "type": "more_specific", "content": "The hundredths digit is $3$. Since $3 < 5$, the tenths digit stays the same." },
+                    { "type": "bottom_out", "content": "The hundredths digit is $3 < 5$, so round down. $6.734 \\approx 6.7$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_rd_002",
+              "title": "Round to Nearest Hundredth",
+              "difficulty": 2,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Round $4.567$ to the nearest hundredth.",
+                  "correctAnswer": "4.57",
+                  "acceptableFormats": ["4.57"],
+                  "kcs": ["kc_round_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "The hundredths digit is $6$. Look at the digit to its right (thousandths). Is it $5$ or more?" },
+                    { "type": "more_specific", "content": "The thousandths digit is $7$. Since $7 \\geq 5$, the hundredths digit rounds up from $6$ to $7$." },
+                    { "type": "bottom_out", "content": "$7 \\geq 5$, so round up: $4.567 \\approx 4.57$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_rd_003",
+              "title": "Round with a 9",
+              "difficulty": 3,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Round $2.397$ to the nearest hundredth.",
+                  "correctAnswer": "2.40",
+                  "acceptableFormats": ["2.40", "2.4"],
+                  "kcs": ["kc_round_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "The hundredths digit is $9$ and the thousandths digit is $7$. Since $7 \\geq 5$, we need to round up. But what happens when you round $9$ up?" },
+                    { "type": "more_specific", "content": "When you round $9$ up, it becomes $10$. That means we write $0$ in the hundredths place and carry $1$ to the tenths place." },
+                    { "type": "bottom_out", "content": "$9$ rounds up to $10$: write $0$ in hundredths, carry $1$ to tenths. $3 + 1 = 4$. So $2.397 \\approx 2.40$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_rd_004",
+              "title": "Rounding in Context",
+              "difficulty": 2,
+              "context": "A gallon of milk costs $\\$3.879$.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Round the price to the nearest cent (hundredth of a dollar).",
+                  "correctAnswer": "$3.88",
+                  "acceptableFormats": ["$3.88", "3.88", "$3.88"],
+                  "kcs": ["kc_round_decimals"],
+                  "hints": [
+                    { "type": "scaffold", "content": "A cent is a hundredth of a dollar. So you need to round to the hundredths place. The hundredths digit is $7$. What's the digit to its right?" },
+                    { "type": "bottom_out", "content": "The thousandths digit is $9 \\geq 5$, so round up: $\\$3.879 \\approx \\$3.88$." }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod_operations",
+      "title": "Multi-Digit Multiplication and Division",
+      "description": "Fluent multiplication of 3-digit by 2-digit numbers and division of up to 4-digit by 2-digit numbers using the standard algorithm.",
+      "lessons": [
+        {
+          "id": "lesson_mult_01",
+          "title": "Multiplying 3-Digit by 2-Digit Numbers",
+          "content": "To multiply a 3-digit number by a 2-digit number using the standard algorithm:\n\n1. Multiply the 3-digit number by the ones digit of the 2-digit number\n2. Multiply the 3-digit number by the tens digit (shift one place left)\n3. Add the partial products\n\nExample: $234 \\times 16$\n$$234 \\times 6 = 1404$$\n$$234 \\times 10 = 2340$$\n$$1404 + 2340 = 3744$$",
+          "problems": [
+            {
+              "id": "prob_mult_001",
+              "title": "Basic 3×2 Multiplication",
+              "difficulty": 2,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Calculate: $142 \\times 23$. First, what is $142 \\times 3$?",
+                  "correctAnswer": "426",
+                  "acceptableFormats": ["426"],
+                  "kcs": ["kc_multiply_3by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Break it down: $100 \\times 3 = 300$, $40 \\times 3 = 120$, $2 \\times 3 = 6$. Add them up." },
+                    { "type": "bottom_out", "content": "$300 + 120 + 6 = 426$." }
+                  ]
+                },
+                {
+                  "id": "step_2",
+                  "prompt": "Now what is $142 \\times 20$?",
+                  "correctAnswer": "2840",
+                  "acceptableFormats": ["2840"],
+                  "kcs": ["kc_multiply_3by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Multiply $142 \\times 2 = 284$, then multiply by $10$." },
+                    { "type": "bottom_out", "content": "$142 \\times 2 = 284$, so $142 \\times 20 = 2840$." }
+                  ]
+                },
+                {
+                  "id": "step_3",
+                  "prompt": "Add your partial products to find $142 \\times 23$.",
+                  "correctAnswer": "3266",
+                  "acceptableFormats": ["3266", "3,266"],
+                  "kcs": ["kc_multiply_3by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Add the result from step 1 and step 2: $426 + 2840 = ?$" },
+                    { "type": "bottom_out", "content": "$426 + 2840 = 3266$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_mult_002",
+              "title": "Multiplication with Carrying",
+              "difficulty": 3,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Calculate: $358 \\times 47$",
+                  "correctAnswer": "16826",
+                  "acceptableFormats": ["16826", "16,826"],
+                  "kcs": ["kc_multiply_3by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Use partial products: first find $358 \\times 7$, then $358 \\times 40$, then add." },
+                    { "type": "more_specific", "content": "$358 \\times 7$: $8 \\times 7 = 56$ (write $6$, carry $5$). $5 \\times 7 = 35$, plus $5 = 40$ (write $0$, carry $4$). $3 \\times 7 = 21$, plus $4 = 25$. So $358 \\times 7 = 2506$." },
+                    { "type": "bottom_out", "content": "$358 \\times 7 = 2506$. $358 \\times 40 = 14320$. $2506 + 14320 = 16826$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_mult_003",
+              "title": "Multiplication Word Problem",
+              "difficulty": 3,
+              "context": "A school orders $215$ boxes of pencils. Each box contains $36$ pencils.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "How many pencils did the school order in total?",
+                  "correctAnswer": "7740",
+                  "acceptableFormats": ["7740", "7,740"],
+                  "kcs": ["kc_multiply_3by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "What operation do you need? You have $215$ groups of $36$. That's multiplication: $215 \\times 36$." },
+                    { "type": "more_specific", "content": "Break into partial products: $215 \\times 6 = 1290$ and $215 \\times 30 = 6450$." },
+                    { "type": "bottom_out", "content": "$1290 + 6450 = 7740$ pencils." }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "lesson_div_01",
+          "title": "Dividing by 2-Digit Numbers",
+          "content": "To divide by a 2-digit number using the standard algorithm:\n\n1. Look at enough digits of the dividend to make a number greater than or equal to the divisor\n2. Estimate how many times the divisor fits\n3. Multiply, subtract, bring down the next digit\n4. Repeat\n\nExample: $1344 \\div 32$\n- $32$ goes into $134$ about $4$ times: $32 \\times 4 = 128$\n- $134 - 128 = 6$, bring down $4$ → $64$\n- $32$ goes into $64$ exactly $2$ times\n- Answer: $42$",
+          "problems": [
+            {
+              "id": "prob_div_001",
+              "title": "Basic Long Division",
+              "difficulty": 2,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Calculate: $736 \\div 23$. How many times does $23$ go into $73$?",
+                  "correctAnswer": "3",
+                  "acceptableFormats": ["3", "three"],
+                  "kcs": ["kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Estimate: $23 \\times 3 = 69$ and $23 \\times 4 = 92$. Which fits in $73$ without going over?" },
+                    { "type": "bottom_out", "content": "$23 \\times 3 = 69$ (fits), $23 \\times 4 = 92$ (too big). So $23$ goes into $73$ three times." }
+                  ]
+                },
+                {
+                  "id": "step_2",
+                  "prompt": "After subtracting $69$ from $73$ and bringing down the $6$, what number do you get?",
+                  "correctAnswer": "46",
+                  "acceptableFormats": ["46"],
+                  "kcs": ["kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "$73 - 69 = ?$, then bring down the next digit ($6$) next to that result." },
+                    { "type": "bottom_out", "content": "$73 - 69 = 4$. Bring down $6$ → $46$." }
+                  ]
+                },
+                {
+                  "id": "step_3",
+                  "prompt": "How many times does $23$ go into $46$? What is $736 \\div 23$?",
+                  "correctAnswer": "32",
+                  "acceptableFormats": ["32"],
+                  "kcs": ["kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "$23 \\times 2 = 46$. That's exact! So the ones digit of your answer is $2$." },
+                    { "type": "bottom_out", "content": "$23 \\times 2 = 46$ exactly. The quotient is $32$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_div_002",
+              "title": "Division with Remainder",
+              "difficulty": 3,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Calculate: $1547 \\div 45$. What is the quotient and remainder?",
+                  "correctAnswer": "34 R 17",
+                  "acceptableFormats": ["34 R 17", "34 r 17", "34 remainder 17", "34R17"],
+                  "kcs": ["kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Start by seeing how many times $45$ goes into $154$. Try $45 \\times 3 = 135$ and $45 \\times 4 = 180$." },
+                    { "type": "more_specific", "content": "$45 \\times 3 = 135$. $154 - 135 = 19$. Bring down $7$ → $197$. Now $45 \\times 4 = 180$. $197 - 180 = 17$." },
+                    { "type": "bottom_out", "content": "$45$ into $154$ = $3$ (remainder $19$). Bring down $7$ → $197$. $45$ into $197$ = $4$ (remainder $17$). Answer: $34$ R $17$." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_div_003",
+              "title": "Division Word Problem",
+              "difficulty": 3,
+              "context": "A factory produces $2,856$ toys. They pack $42$ toys in each box.",
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "How many full boxes can they make?",
+                  "correctAnswer": "68",
+                  "acceptableFormats": ["68"],
+                  "kcs": ["kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "This is a division problem: $2856 \\div 42$. How many groups of $42$ fit in $2856$?" },
+                    { "type": "more_specific", "content": "$42$ into $285$: $42 \\times 6 = 252$. $285 - 252 = 33$. Bring down $6$ → $336$. $42 \\times 8 = 336$." },
+                    { "type": "bottom_out", "content": "$2856 \\div 42 = 68$ with no remainder. They can make $68$ full boxes." }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "prob_div_004",
+              "title": "Estimation Before Division",
+              "difficulty": 2,
+              "steps": [
+                {
+                  "id": "step_1",
+                  "prompt": "Estimate: $3,192 \\div 38$. Round both numbers to make an easier division, then estimate.",
+                  "correctAnswer": "80",
+                  "acceptableFormats": ["80", "about 80", "approximately 80"],
+                  "kcs": ["kc_estimation", "kc_divide_4by2"],
+                  "hints": [
+                    { "type": "scaffold", "content": "Round $3192$ to $3200$ and $38$ to $40$. Now divide the rounded numbers." },
+                    { "type": "bottom_out", "content": "$3200 \\div 40 = 80$. The estimate is $80$. (The exact answer is $84$.)" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

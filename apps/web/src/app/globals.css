@@ -1,1 +1,27 @@
+@import "katex/dist/katex.min.css";
 @import "tailwindcss";
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+  --color-primary: #2563eb;
+  --color-primary-foreground: #ffffff;
+  --color-muted-foreground: #6b7280;
+  --color-border: #e5e7eb;
+  --color-ring: #2563eb;
+}
+
+@layer base {
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background: #0a0a0a;
+      --color-foreground: #fafafa;
+      --color-primary: #3b82f6;
+      --color-primary-foreground: #ffffff;
+      --color-muted-foreground: #a1a1aa;
+      --color-border: #27272a;
+      --color-ring: #3b82f6;
+    }
+  }
+}
