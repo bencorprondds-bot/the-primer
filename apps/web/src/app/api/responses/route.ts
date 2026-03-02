@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { bktUpdate, MASTERY_THRESHOLD } from "@primer/shared";
 import { auth } from "@clerk/nextjs/server";
+import { ensureUser } from "@/lib/ensure-user";
 
 /**
  * POST /api/responses
@@ -18,11 +19,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Look up internal user ID from Clerk ID
-  const user = await db.user.findUnique({ where: { clerkId } });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  // Look up or create internal user from Clerk ID
+  const user = await ensureUser(clerkId);
 
   const body = await req.json();
   const {

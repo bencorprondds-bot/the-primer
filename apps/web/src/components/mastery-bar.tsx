@@ -24,7 +24,7 @@ export function MasteryBar({
 
   return (
     <div className="border border-border rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
         <div className="flex items-center gap-2">
           {isMastered && <span className="text-green-500">✓</span>}
           <span className="font-medium text-sm">{name}</span>

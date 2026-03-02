@@ -21,7 +21,7 @@ export default async function CoursesPage() {
   });
 
   return (
-    <main className="min-h-screen p-8 max-w-4xl mx-auto">
+    <main className="min-h-screen px-4 py-6 md:px-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Courses</h1>
       <p className="text-muted-foreground mb-8">
         Choose a course to begin learning.

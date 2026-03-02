@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { MASTERY_THRESHOLD } from "@primer/shared";
+import { ensureUser } from "@/lib/ensure-user";
 
 /**
  * GET /api/mastery/[studentId]
@@ -20,10 +21,7 @@ export async function GET(
 
   const { studentId } = await params;
 
-  const user = await db.user.findUnique({ where: { clerkId } });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const user = await ensureUser(clerkId);
 
   // Authorization: students see only their own data, guides/admins see all
   if (user.role === "STUDENT" && user.id !== studentId && studentId !== "me") {

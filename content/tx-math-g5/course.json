@@ -115,7 +115,7 @@
                   "id": "step_2",
                   "prompt": "Write $4.518$ in expanded form: $4 + \\_\\_ + \\_\\_ + \\_\\_$",
                   "correctAnswer": "4 + 0.5 + 0.01 + 0.008",
-                  "acceptableFormats": ["4 + 0.5 + 0.01 + 0.008", "4+0.5+0.01+0.008"],
+                  "acceptableFormats": ["4 + 0.5 + 0.01 + 0.008", "4+0.5+0.01+0.008", "0.5 + 0.01 + 0.008", "0.5+0.01+0.008"],
                   "kcs": ["kc_place_value_decimals"],
                   "hints": [
                     { "type": "scaffold", "content": "Break each digit into its place value. The $4$ is ones, the $5$ is tenths, the $1$ is hundredths, and the $8$ is..." },

@@ -1,9 +1,11 @@
-import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { MASTERY_THRESHOLD } from "@primer/shared";
 import Link from "next/link";
 import { MasteryBar } from "@/components/mastery-bar";
+import { ensureUser } from "@/lib/ensure-user";
+import { getStreak } from "@/lib/streaks";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +13,12 @@ export default async function DashboardPage() {
   const { userId: clerkId } = await auth();
   if (!clerkId) redirect("/sign-in");
 
-  const user = await db.user.findUnique({
-    where: { clerkId },
+  // Ensure user exists in DB (auto-creates from Clerk on first visit)
+  const baseUser = await ensureUser(clerkId);
+
+  // Re-fetch with all the relations we need for the dashboard
+  const user = await db.user.findUniqueOrThrow({
+    where: { id: baseUser.id },
     include: {
       masteryStates: {
         include: {
@@ -53,7 +59,7 @@ export default async function DashboardPage() {
     },
   });
 
-  if (!user) redirect("/sign-in");
+  const streak = await getStreak(baseUser.id);
 
   // Build mastery summary
   const masteryStates = user.masteryStates;
@@ -95,7 +101,7 @@ export default async function DashboardPage() {
   ).length;
 
   return (
-    <main className="min-h-screen p-8 max-w-4xl mx-auto">
+    <main className="min-h-screen px-4 py-6 md:px-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -104,12 +110,19 @@ export default async function DashboardPage() {
             {user.name ?? "Student"} · Mastery Dashboard
           </p>
         </div>
-        <Link
-          href="/courses"
-          className="text-sm text-primary hover:underline"
-        >
-          ← Browse Courses
-        </Link>
+        <div className="flex items-center gap-4">
+          {streak.current > 0 && (
+            <span className="text-sm">
+              🔥 {streak.current} day{streak.current !== 1 ? "s" : ""}
+            </span>
+          )}
+          <Link
+            href="/learn"
+            className="text-sm px-4 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Continue Learning
+          </Link>
+        </div>
       </div>
 
       {/* Stats row */}

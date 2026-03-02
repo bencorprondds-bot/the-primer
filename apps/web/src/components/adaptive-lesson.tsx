@@ -24,6 +24,8 @@ interface NextProblemResponse {
   targetKc?: {
     id: string;
     pMastery: number;
+    totalAttempts: number;
+    correctCount: number;
   };
   progress?: {
     totalKCs: number;
@@ -53,6 +55,8 @@ export function AdaptiveLesson({
   const [targetKc, setTargetKc] = useState<{
     id: string;
     pMastery: number;
+    totalAttempts: number;
+    correctCount: number;
   } | null>(null);
   const [problemCount, setProblemCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -153,9 +157,9 @@ export function AdaptiveLesson({
   // Lesson complete
   if (lessonComplete) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 animate-fade-in">
         <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-8 text-center">
-          <div className="text-4xl mb-3">🎉</div>
+          <div className="text-4xl mb-3 animate-pop">🎉</div>
           <h3 className="text-xl font-semibold mb-2">Lesson Mastered!</h3>
           <p className="text-muted-foreground">
             You&apos;ve mastered all knowledge components in this lesson.
@@ -166,6 +170,12 @@ export function AdaptiveLesson({
               {problemCount} problems completed this session
             </p>
           )}
+          <a
+            href="/learn"
+            className="inline-block mt-4 px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+          >
+            Back to My Playlist
+          </a>
         </div>
       </div>
     );
@@ -210,8 +220,8 @@ export function AdaptiveLesson({
         <MasteryBar
           name={`Current focus`}
           pMastery={targetKc.pMastery}
-          totalAttempts={0}
-          correctCount={0}
+          totalAttempts={targetKc.totalAttempts}
+          correctCount={targetKc.correctCount}
           masteredAt={null}
           threshold={0.95}
         />

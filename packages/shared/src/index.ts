@@ -12,6 +12,9 @@ export {
   estimateToMastery,
 } from "./bkt";
 
+// Re-export answer checker
+export { checkAnswer, normalizeAnswer, numericEquals } from "./answer-checker";
+
 // Re-export content schema
 export {
   type KCDefinition,

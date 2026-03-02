@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { MASTERY_THRESHOLD } from "@primer/shared";
+import { ensureUser } from "@/lib/ensure-user";
 
 /**
  * GET /api/next-problem/[lessonId]
@@ -25,10 +26,7 @@ export async function GET(
 
   const { lessonId } = await params;
 
-  const user = await db.user.findUnique({ where: { clerkId } });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+  const user = await ensureUser(clerkId);
 
   // Get all problems in this lesson with their KC links
   const problems = await db.problem.findMany({
@@ -145,6 +143,8 @@ export async function GET(
     targetKc: {
       id: targetKcId,
       pMastery: readyKCs[0].pMastery,
+      totalAttempts: masteryMap.get(targetKcId)?.totalAttempts ?? 0,
+      correctCount: masteryMap.get(targetKcId)?.correctCount ?? 0,
     },
     progress: {
       totalKCs: lessonKcIds.length,

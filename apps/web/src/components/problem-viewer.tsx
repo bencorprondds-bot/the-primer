@@ -3,6 +3,7 @@
 import { MathText } from "@primer/math-renderer";
 import { useState, useCallback, useRef } from "react";
 import type { ProblemDefinition } from "@primer/shared/src/content-schema";
+import { checkAnswer as checkAnswerShared } from "@primer/shared";
 
 interface ProblemViewerProps {
   /** The DB problem ID (for response tracking) */
@@ -42,13 +43,11 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
     // Sync React state if it was stale
     if (inputValue !== answer) setAnswer(inputValue);
 
-    const normalized = inputValue.trim().toLowerCase();
-    const correct =
-      normalized === currentStep.correctAnswer.toLowerCase() ||
-      (currentStep.acceptableFormats?.some(
-        (f) => normalized === f.toLowerCase()
-      ) ??
-        false);
+    const correct = checkAnswerShared(
+      inputValue,
+      currentStep.correctAnswer,
+      currentStep.acceptableFormats
+    );
 
     setAttempts((a) => a + 1);
 
@@ -123,10 +122,21 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
   if (completed) {
     const totalAttempts = stepResults.reduce((s, r) => s + r.attempts, 0);
     const totalHints = stepResults.reduce((s, r) => s + r.hintsUsed, 0);
+    const allFirstAttempt = stepResults.every((r) => r.attempts === 1);
+    const usedBottomOut = stepResults.some(
+      (r) => r.hintsUsed >= (problem.steps.find((s) => s.id === r.stepId)?.hints.length ?? 0) && r.hintsUsed > 0
+    );
+    const stars = allFirstAttempt ? 3 : usedBottomOut ? 1 : 2;
 
     return (
-      <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-6 text-center">
-        <div className="text-4xl mb-3">🎉</div>
+      <div className="border border-green-500/30 bg-green-500/5 rounded-lg p-6 text-center animate-fade-in">
+        <div className="text-3xl mb-3 animate-pop">
+          {Array.from({ length: 3 }, (_, i) => (
+            <span key={i} className={i < stars ? "opacity-100" : "opacity-20"}>
+              ⭐
+            </span>
+          ))}
+        </div>
         <h3 className="text-xl font-semibold mb-2">Problem Complete!</h3>
         <p className="text-muted-foreground">
           {problem.steps.length} steps · {totalAttempts} attempts · {totalHints}{" "}
@@ -139,7 +149,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
   if (!currentStep) return null;
 
   return (
-    <div className="border border-border rounded-lg p-6 space-y-4">
+    <div className="border border-border rounded-lg p-4 sm:p-6 space-y-4">
       {/* Problem title and context */}
       <div>
         <h3 className="font-semibold text-lg">{problem.title}</h3>
@@ -167,7 +177,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
       </div>
 
       {/* Current step */}
-      <div className="space-y-3">
+      <div key={currentStepIndex} className="space-y-3 animate-fade-in">
         <div className="text-sm text-muted-foreground">
           Step {currentStepIndex + 1} of {problem.steps.length}
         </div>
@@ -176,7 +186,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
         </div>
 
         {/* Answer input */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -184,7 +194,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
             onChange={(e) => setAnswer(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
             placeholder="Type your answer..."
-            className={`flex-1 px-4 py-2 border rounded-lg bg-background text-foreground outline-none focus:ring-2 transition-colors ${
+            className={`flex-1 px-4 py-2 min-h-[44px] text-base border rounded-lg bg-background text-foreground outline-none focus:ring-2 transition-colors ${
               feedback === "correct"
                 ? "border-green-500 focus:ring-green-500/30"
                 : feedback === "incorrect"
@@ -196,7 +206,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
           <button
             onClick={checkAnswer}
             disabled={feedback === "correct"}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium transition-colors"
+            className="px-4 py-2 min-h-[44px] bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium transition-colors"
           >
             Check
           </button>
@@ -204,7 +214,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
 
         {/* Feedback */}
         {feedback === "correct" && (
-          <div className="flex items-center gap-2 text-green-600 font-medium">
+          <div className="flex items-center gap-2 text-green-600 font-medium animate-pop">
             <span>✓</span> Correct!
             {currentStep.explanation && (
               <span className="text-sm text-muted-foreground ml-2">
@@ -214,7 +224,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
           </div>
         )}
         {feedback === "incorrect" && (
-          <div className="text-red-500 text-sm font-medium">
+          <div className="text-red-500 text-sm font-medium animate-shake">
             Not quite. Try again, or use a hint.
           </div>
         )}
@@ -236,7 +246,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
             feedback !== "correct" && (
               <button
                 onClick={revealHint}
-                className="text-sm text-amber-600 hover:text-amber-500 transition-colors"
+                className="text-sm text-amber-600 hover:text-amber-500 transition-colors min-h-[44px] px-2"
               >
                 💡 Show hint ({hintsRevealed}/{currentStep.hints.length})
               </button>
