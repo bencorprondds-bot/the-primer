@@ -64,7 +64,7 @@
           {
             "type": "tool_selected",
             "weight": 0.5,
-            "expectedTemplate": "grep",
+            "expectedTemplate": "grep,search",
             "description": "Selected a search/grep tool"
           },
           {

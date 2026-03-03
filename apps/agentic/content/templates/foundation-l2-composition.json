@@ -23,7 +23,7 @@
           {
             "type": "sequence_valid",
             "weight": 0.4,
-            "expectedTemplate": "read_file,grep",
+            "expectedTemplate": "read_file,grep|search",
             "description": "Tools called in correct order: read first, then search"
           },
           {
@@ -35,7 +35,7 @@
           {
             "type": "tool_selected",
             "weight": 0.2,
-            "expectedTemplate": "grep",
+            "expectedTemplate": "grep,search",
             "description": "Used grep/search tool"
           },
           {
@@ -63,7 +63,7 @@
           {
             "type": "sequence_valid",
             "weight": 0.4,
-            "expectedTemplate": "grep,read_file",
+            "expectedTemplate": "grep|search,read_file",
             "description": "Tools called in correct order: search first, then read"
           },
           {

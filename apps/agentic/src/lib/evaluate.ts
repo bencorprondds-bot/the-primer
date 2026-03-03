@@ -198,11 +198,17 @@ function evaluateSequenceValid(criterion: Criterion, response: AgentResponse): n
   const actual = response.toolCalls.map((tc) => tc.tool);
   const expected = criterion.expected as string[];
 
-  // Check if actual sequence contains expected subsequence in order
+  // Check if actual sequence contains expected subsequence in order.
+  // Each expected step is treated as a regex pattern, so "grep|search"
+  // matches either tool name. This prevents rubric strictness when
+  // multiple tools serve the same function (e.g., grep vs search).
   let expectedIdx = 0;
   for (const tool of actual) {
-    if (expectedIdx < expected.length && tool === expected[expectedIdx]) {
-      expectedIdx++;
+    if (expectedIdx < expected.length) {
+      const pattern = new RegExp(`^(?:${expected[expectedIdx]})$`);
+      if (pattern.test(tool)) {
+        expectedIdx++;
+      }
     }
   }
   return expectedIdx >= expected.length ? 1.0 : expectedIdx / expected.length;

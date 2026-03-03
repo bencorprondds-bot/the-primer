@@ -13,19 +13,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "pnpm"
+
+      - name: Enable pnpm via corepack
+        run: corepack enable && corepack prepare
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-store-
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
-        run: pnpm --filter @primer/web exec prisma generate
+      - name: Generate Prisma Clients
+        run: |
+          pnpm --filter @primer/web exec prisma generate
+          pnpm --filter @primer/agentic exec prisma generate
 
       - name: Type check
         run: pnpm typecheck
