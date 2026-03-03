@@ -1,0 +1,45 @@
+{
+  "capability": {
+    "slug": "error_handling",
+    "name": "Error Handling",
+    "description": "Recognize tool failures, diagnose the cause, and take corrective action.",
+    "level": 1,
+    "prerequisites": ["tool_selection"]
+  },
+  "templates": [
+    {
+      "slug": "file_not_found_recovery",
+      "promptTemplate": "Read the file '{{wrong_path}}'. If the file doesn't exist, search for files named '{{filename}}' in the project and read the correct one.\n\n(Hint: the file actually exists at '{{correct_path}}')",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "filename", "type": "string", "generator": "filename_json" },
+          { "name": "wrong_path", "type": "enum", "values": ["./config.json", "./settings/app.json", "./data/config.yaml"] },
+          { "name": "correct_path", "type": "enum", "values": ["./src/config.json", "./lib/settings/app.json", "./config/data/config.yaml"] }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "error_handled",
+            "weight": 0.5,
+            "description": "Agent recovered from the initial file-not-found error"
+          },
+          {
+            "type": "tool_selected",
+            "weight": 0.2,
+            "expectedTemplate": "search",
+            "description": "Agent used search to find the correct file"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "expectedTemplate": "{{correct_path}}",
+            "description": "Agent found and read the correct file"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

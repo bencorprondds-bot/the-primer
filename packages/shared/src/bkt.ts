@@ -18,7 +18,7 @@
  * Ported from OATutor's BKT-brain.js with TypeScript types.
  */
 
-import { MASTERY_THRESHOLD, DEFAULT_BKT_PARAMS } from "./index";
+import { MASTERY_THRESHOLD, DEFAULT_BKT_PARAMS } from "./constants";
 
 export interface BKTParams {
   pMastery: number; // Current P(L) estimate

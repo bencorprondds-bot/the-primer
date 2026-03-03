@@ -1,0 +1,281 @@
+// The Agentic Primer — Database Schema
+// Sprint 1 + Phase 2 (Dynamic Assessment, AGI-Elo, Error Memory)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Agent Identity ───────────────────────────────────────────
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String
+  apiKeyHash  String   @unique
+  modelId     String?  // e.g., "claude-opus-4-6", "gpt-4", "llama-3-8b"
+  modelClass  ModelClass @default(UNKNOWN)
+  focusArea   String?  // null = generalist, or "web-dev", "research", etc.
+
+  // AGI-Elo rating (Phase 2)
+  eloMu       Float    @default(1500)  // Mean rating
+  eloSigma    Float    @default(350)   // Rating uncertainty (high = uncertain)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  enrollments    Enrollment[]
+  masteryStates  AgentMasteryState[]
+  taskAttempts   TaskAttempt[]
+  reflections    Reflection[]
+}
+
+enum ModelClass {
+  CONSTRAINED  // Small models: Haiku, Phi-3, Llama 8B — need heavy scaffolding
+  GUIDED       // Mid-tier: Sonnet, GPT-4o-mini — moderate scaffolding
+  AUTONOMOUS   // Large models: Opus, GPT-4, Gemini Ultra — minimal scaffolding
+  UNKNOWN      // Not yet assessed
+}
+
+// ─── Course & Curriculum ──────────────────────────────────────
+
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  version     Int      @default(1)
+  published   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  capabilities  Capability[]
+  modules       Module[]
+  enrollments   Enrollment[]
+}
+
+model Capability {
+  id            String   @id @default(cuid())
+  slug          String   // e.g., "tool_selection", "error_recovery"
+  name          String
+  description   String
+  level         Int      @default(0) // Foundation level: 0-5; specialization: 10+
+  courseId       String
+  course         Course   @relation(fields: [courseId], references: [id])
+
+  // Prerequisite capabilities (DAG edges)
+  prerequisites     CapabilityPrereq[] @relation("dependent")
+  dependents        CapabilityPrereq[] @relation("prerequisite")
+
+  // AGI-Elo for capability-level rating
+  eloMu         Float    @default(1500)
+  eloSigma      Float    @default(350)
+
+  masteryStates    AgentMasteryState[]
+  taskTemplates    TaskTemplate[]
+  tasks            Task[]
+
+  @@unique([courseId, slug])
+}
+
+model CapabilityPrereq {
+  id              String     @id @default(cuid())
+  prerequisiteId  String
+  dependentId     String
+  prerequisite    Capability @relation("prerequisite", fields: [prerequisiteId], references: [id])
+  dependent       Capability @relation("dependent", fields: [dependentId], references: [id])
+
+  @@unique([prerequisiteId, dependentId])
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  orderIndex  Int
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  tasks       Task[]
+}
+
+// ─── Task System (Phase 2: Templates + Instances) ─────────────
+
+model TaskTemplate {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  capabilityId    String
+  capability      Capability @relation(fields: [capabilityId], references: [id])
+
+  // Template definition
+  promptTemplate  String   // Template with {{placeholders}}
+  parameterSchema Json     // JSON Schema defining available parameters
+  difficultyRange Json     // { min: 1, max: 5, difficultyParams: [...] }
+
+  // Validation
+  validatorType   ValidatorType @default(RUBRIC)
+  rubricTemplate  Json?    // Rubric template with parameterized criteria
+  goldSolution    String?  // Template for gold-standard solution path
+
+  // AGI-Elo (task template level)
+  eloMu           Float    @default(1500)
+  eloSigma        Float    @default(350)
+
+  createdAt       DateTime @default(now())
+
+  instances       Task[]   // Generated task instances
+}
+
+enum ValidatorType {
+  RUBRIC        // Static rubric evaluation (Sprint 1)
+  EXECUTION     // Outcome-based validation
+  LLM_JUDGE     // LLM evaluates response (Phase 5+)
+  HYBRID        // Combination
+}
+
+model Task {
+  id            String   @id @default(cuid())
+
+  // Can be template-generated or static
+  templateId    String?
+  template      TaskTemplate? @relation(fields: [templateId], references: [id])
+
+  // Task content
+  capabilityId  String
+  capability    Capability @relation(fields: [capabilityId], references: [id])
+  moduleId      String?
+  module        Module?    @relation(fields: [moduleId], references: [id])
+
+  prompt        String     // The actual task text (generated from template or static)
+  context       Json?      // Additional context (file contents, scenario setup)
+  difficulty    Int        @default(1) // 1-5
+  parameters    Json?      // The specific parameter values used to generate this instance
+
+  // Rubric (can be template-generated or static)
+  rubric        Json       // Evaluation criteria with weights
+  goldSolution  String?    // Expected solution path
+
+  // AGI-Elo (instance level — calibrated from attempts)
+  eloMu         Float      @default(1500)
+  eloSigma      Float      @default(350)
+
+  createdAt     DateTime   @default(now())
+
+  attempts      TaskAttempt[]
+}
+
+// ─── Agent Progress ───────────────────────────────────────────
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  agentId   String
+  courseId   String
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  enrolledAt DateTime @default(now())
+
+  @@unique([agentId, courseId])
+}
+
+model AgentMasteryState {
+  id            String   @id @default(cuid())
+  agentId       String
+  capabilityId  String
+  agent         Agent      @relation(fields: [agentId], references: [id])
+  capability    Capability @relation(fields: [capabilityId], references: [id])
+
+  // BKT state (progression tracking)
+  pMastery      Float    @default(0.1)
+  pInit         Float    @default(0.1)
+  pTransit      Float    @default(0.2)
+  pSlip         Float    @default(0.1)
+  pGuess        Float    @default(0.05) // Lower for agents (not 0.25)
+
+  // AGI-Elo (agent × capability)
+  eloMu         Float    @default(1500)
+  eloSigma      Float    @default(350)
+
+  // Stats
+  totalAttempts   Int      @default(0)
+  correctCount    Int      @default(0)
+  masteredAt      DateTime?
+  lastAttemptAt   DateTime?
+
+  @@unique([agentId, capabilityId])
+}
+
+model TaskAttempt {
+  id          String   @id @default(cuid())
+  agentId     String
+  taskId      String
+  agent       Agent    @relation(fields: [agentId], references: [id])
+  task        Task     @relation(fields: [taskId], references: [id])
+
+  // Response
+  response    Json     // The agent's full response
+
+  // Scoring (Phase 2: continuous + binary)
+  score       Float    // Continuous score [0.0, 1.0]
+  correct     Boolean  // Binary (score >= threshold)
+
+  // BKT state change
+  pMasteryBefore  Float
+  pMasteryAfter   Float
+
+  // Elo state change
+  eloMuBefore     Float?
+  eloMuAfter      Float?
+
+  // Diagnostics
+  criteriaScores  Json?  // Per-criterion breakdown
+  evaluationNotes String? // LLM judge notes or rubric explanation
+
+  // Token efficiency (Phase 2 meta-skill tracking)
+  tokenCount      Int?   // Total tokens used in response
+  toolCallCount   Int?   // Number of tool calls made
+
+  createdAt   DateTime @default(now())
+}
+
+// ─── Error Memory (Phase 2: Reflexion Pattern) ────────────────
+
+model Reflection {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id])
+
+  // What happened
+  taskAttemptId  String?  // Which attempt triggered this (null for batch reflections)
+  capabilitySlug String   // Which capability area
+
+  // The reflection itself
+  content     String     // Agent's verbal lesson (100-200 tokens)
+  errorType   ErrorType? // Category tag (Phase 2 v3: AgentDebug taxonomy)
+
+  // Evidence tracking (failure-memory pattern)
+  recurrence    Int      @default(1) // R: how many times this pattern seen
+  confirmations Int      @default(0) // C: human/system confirmations
+  disconfirmations Int   @default(0) // D: contradicting evidence
+
+  // Status
+  promotedToConstraint Boolean @default(false) // When R >= 3, C >= 2
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ErrorType {
+  TOOL_SELECTION    // Wrong tool chosen
+  ARGUMENT_ERROR    // Correct tool, wrong parameters
+  INTERPRETATION    // Misread tool output
+  PLANNING          // Bad task decomposition
+  MEMORY            // Failed to use available context
+  SYSTEM            // External failure (timeout, permission, etc.)
+  UNKNOWN
+}

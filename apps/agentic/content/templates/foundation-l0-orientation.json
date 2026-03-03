@@ -1,0 +1,85 @@
+{
+  "capability": {
+    "slug": "tool_discovery",
+    "name": "Tool Discovery",
+    "description": "Identify available tools, understand their schemas, and determine which tool serves which purpose.",
+    "level": 0
+  },
+  "templates": [
+    {
+      "slug": "tool_discovery_list",
+      "promptTemplate": "You have access to the following tools:\n\n{{tool_list}}\n\nList all available tools and describe what each one does in one sentence.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "tool_list",
+            "type": "enum",
+            "values": [
+              "- read_file(path: string): Read contents of a file\n- write_file(path: string, content: string): Write content to a file\n- search(query: string): Search for files matching a query",
+              "- http_get(url: string): Make an HTTP GET request\n- parse_json(text: string): Parse a JSON string\n- list_dir(path: string): List directory contents",
+              "- grep(pattern: string, path: string): Search file contents\n- execute(command: string): Run a shell command\n- read_file(path: string): Read a file"
+            ],
+            "affectsDifficulty": false
+          }
+        ]
+      },
+      "difficultyRange": { "min": 1, "max": 2, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 1.0,
+            "pattern": "read_file|write_file|search|http_get|parse_json|list_dir|grep|execute",
+            "description": "Agent identified at least one tool correctly"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "tool_discovery_match",
+      "promptTemplate": "You have these tools available:\n{{tool_list}}\n\nWhich tool would you use to {{task_description}}? Explain your reasoning.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "tool_list",
+            "type": "enum",
+            "values": [
+              "read_file, write_file, search, list_dir",
+              "http_get, parse_json, read_file, grep",
+              "execute, read_file, write_file, search"
+            ]
+          },
+          {
+            "name": "task_description",
+            "type": "enum",
+            "values": [
+              "find out what files exist in the /config directory",
+              "look at the contents of package.json",
+              "find all files that mention 'database'",
+              "fetch data from an API endpoint"
+            ]
+          }
+        ]
+      },
+      "difficultyRange": { "min": 1, "max": 3, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.7,
+            "pattern": "read_file|write_file|search|list_dir|http_get|parse_json|grep|execute",
+            "description": "Agent selected a tool from the available set"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "because|reason|since|allows|designed|purpose|need|read|file|contents|directory|search|request",
+            "description": "Agent provided reasoning for the choice"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

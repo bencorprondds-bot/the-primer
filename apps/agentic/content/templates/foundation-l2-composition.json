@@ -1,0 +1,86 @@
+{
+  "capability": {
+    "slug": "sequential_chaining",
+    "name": "Sequential Chaining",
+    "description": "Chain multiple tool calls in sequence, using the output of one as input to the next.",
+    "level": 2,
+    "prerequisites": ["tool_selection", "argument_construction"]
+  },
+  "templates": [
+    {
+      "slug": "read_then_search",
+      "promptTemplate": "First, read the file '{{config_file}}' in the '{{directory}}' directory to find the value of '{{key_name}}'. Then, search the project for all files that contain that value. Report the list of matching files.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "config_file", "type": "string", "generator": "filename_json" },
+          { "name": "directory", "type": "string", "generator": "directory_name" },
+          { "name": "key_name", "type": "string", "generator": "variable_name" }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "sequence_valid",
+            "weight": 0.4,
+            "expectedTemplate": "read_file,grep",
+            "description": "Tools called in correct order: read first, then search"
+          },
+          {
+            "type": "tool_selected",
+            "weight": 0.2,
+            "expectedTemplate": "read_file",
+            "description": "Used read_file tool"
+          },
+          {
+            "type": "tool_selected",
+            "weight": 0.2,
+            "expectedTemplate": "grep",
+            "description": "Used grep/search tool"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "file|match|found",
+            "description": "Reported matching files"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "search_read_summarize",
+      "promptTemplate": "Search the '{{directory}}' directory for files containing '{{search_term}}'. Read the first matching file. Summarize its contents in 2-3 sentences.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "directory", "type": "string", "generator": "directory_name" },
+          { "name": "search_term", "type": "string", "generator": "search_term" }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 5, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "sequence_valid",
+            "weight": 0.4,
+            "expectedTemplate": "grep,read_file",
+            "description": "Tools called in correct order: search first, then read"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.4,
+            "pattern": "\\w{20,}",
+            "description": "Response contains a substantive summary"
+          },
+          {
+            "type": "format_correct",
+            "weight": 0.2,
+            "pattern": "\\.",
+            "description": "Summary is in sentence form"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

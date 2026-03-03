@@ -1,0 +1,70 @@
+{
+  "capability": {
+    "slug": "argument_construction",
+    "name": "Argument Construction",
+    "description": "Construct correct arguments for tool calls — right types, formats, and values.",
+    "level": 1,
+    "prerequisites": ["tool_discovery"]
+  },
+  "templates": [
+    {
+      "slug": "path_construction",
+      "promptTemplate": "Read the file named '{{filename}}' that is located {{depth_description}}. The base directory is './{{base_dir}}'.\n\nConstruct the correct file path and read it.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "filename", "type": "string", "generator": "filename_ts" },
+          { "name": "base_dir", "type": "string", "generator": "directory_name" },
+          {
+            "name": "depth_description",
+            "type": "enum",
+            "values": [
+              "directly in the base directory",
+              "inside a 'utils' subdirectory",
+              "inside 'src/lib' under the base directory",
+              "somewhere in the nested directory structure (you may need to search first)"
+            ],
+            "affectsDifficulty": true
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 1, "max": 4,
+        "difficultyParams": [
+          {
+            "param": "depth_description",
+            "scaling": "stepped",
+            "steps": {
+              "1": "directly in the base directory",
+              "2": "inside a 'utils' subdirectory",
+              "3": "inside 'src/lib' under the base directory",
+              "4": "somewhere in the nested directory structure (you may need to search first)"
+            }
+          }
+        ]
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "tool_selected",
+            "weight": 0.3,
+            "expectedTemplate": "read_file",
+            "description": "Selected a file reading tool"
+          },
+          {
+            "type": "argument_valid",
+            "weight": 0.5,
+            "key": "path",
+            "pattern": "{{filename}}",
+            "description": "Path contains the correct filename"
+          },
+          {
+            "type": "format_correct",
+            "weight": 0.2,
+            "description": "Tool call is properly formatted"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

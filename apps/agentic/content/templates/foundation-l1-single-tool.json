@@ -1,0 +1,125 @@
+{
+  "capability": {
+    "slug": "tool_selection",
+    "name": "Tool Selection",
+    "description": "Given a task, select the correct tool and construct a valid call with appropriate arguments.",
+    "level": 1,
+    "prerequisites": ["tool_discovery"]
+  },
+  "templates": [
+    {
+      "slug": "file_lookup",
+      "promptTemplate": "Find the value of '{{variable_name}}' in the file '{{filename}}' located in the '{{directory}}' directory. Use the appropriate tool to read the file and extract the value.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "filename", "type": "string", "generator": "filename_json" },
+          { "name": "directory", "type": "string", "generator": "directory_name" },
+          { "name": "variable_name", "type": "string", "generator": "variable_name" }
+        ]
+      },
+      "difficultyRange": {
+        "min": 1, "max": 3,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "tool_selected",
+            "weight": 0.5,
+            "expectedTemplate": "read_file",
+            "description": "Selected a file reading tool"
+          },
+          {
+            "type": "argument_valid",
+            "weight": 0.3,
+            "key": "path",
+            "pattern": "{{directory}}/{{filename}}",
+            "description": "Constructed correct file path"
+          },
+          {
+            "type": "format_correct",
+            "weight": 0.2,
+            "description": "Response includes a tool call"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "content_search",
+      "promptTemplate": "Search for all occurrences of '{{search_term}}' in the {{project_type}} project located at './{{directory}}'. Report how many files contain this term.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "search_term", "type": "string", "generator": "search_term" },
+          { "name": "project_type", "type": "string", "generator": "project_type" },
+          { "name": "directory", "type": "string", "generator": "directory_name" }
+        ]
+      },
+      "difficultyRange": {
+        "min": 1, "max": 4,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "tool_selected",
+            "weight": 0.5,
+            "expectedTemplate": "grep",
+            "description": "Selected a search/grep tool"
+          },
+          {
+            "type": "argument_valid",
+            "weight": 0.3,
+            "key": "pattern",
+            "expectedTemplate": "{{search_term}}",
+            "description": "Searched for the correct term"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\d+\\s*(file|match|occurrence|result)",
+            "description": "Reported a count of matches"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "api_request",
+      "promptTemplate": "Make a GET request to {{api_endpoint}} and extract the response status code and first item from the response body.",
+      "parameterSchema": {
+        "parameters": [
+          { "name": "api_endpoint", "type": "string", "generator": "api_endpoint" }
+        ]
+      },
+      "difficultyRange": {
+        "min": 2, "max": 4,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "tool_selected",
+            "weight": 0.4,
+            "expectedTemplate": "http_get",
+            "description": "Selected an HTTP request tool"
+          },
+          {
+            "type": "argument_valid",
+            "weight": 0.3,
+            "key": "url",
+            "expectedTemplate": "{{api_endpoint}}",
+            "description": "Used the correct endpoint"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "status|200|first|item|\\[0\\]",
+            "description": "Extracted status and first item"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

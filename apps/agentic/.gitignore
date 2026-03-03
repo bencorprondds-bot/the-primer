@@ -1,0 +1,14 @@
+# Generated Prisma client
+src/generated/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Claude Code specific
+skills-lock.json
+.agents/
+.claude/
