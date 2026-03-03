@@ -19,11 +19,12 @@ import crypto from "node:crypto";
 
 export interface TemplateParameter {
   name: string;
-  type: "string" | "number" | "enum" | "array";
+  type: "string" | "number" | "enum" | "array" | "paired_set";
   values?: (string | number)[];       // For enum type
   range?: { min: number; max: number }; // For number type
   generator?: string;                   // Named generator function
   affectsDifficulty?: boolean;          // Does this param change difficulty?
+  sets?: Record<string, string>[];     // For paired_set type: array of {key: value} objects
 }
 
 export interface ParameterSchema {
@@ -120,6 +121,15 @@ export function generateTask(
   const parameters: Record<string, unknown> = {};
 
   for (const param of template.parameterSchema.parameters) {
+    // Handle paired_set type: pick one set and merge all key-value pairs
+    if (param.type === "paired_set" && param.sets?.length) {
+      const selectedSet = pickRandom(param.sets);
+      for (const [key, value] of Object.entries(selectedSet)) {
+        parameters[key] = value;
+      }
+      continue;
+    }
+
     // Check if this param should scale with difficulty
     const difficultyConfig = template.difficultyRange.difficultyParams.find(
       (dp) => dp.param === param.name

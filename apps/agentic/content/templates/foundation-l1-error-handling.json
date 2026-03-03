@@ -9,12 +9,19 @@
   "templates": [
     {
       "slug": "file_not_found_recovery",
-      "promptTemplate": "Read the file '{{wrong_path}}'. If the file doesn't exist, search for files named '{{filename}}' in the project and read the correct one.\n\n(Hint: the file actually exists at '{{correct_path}}')",
+      "promptTemplate": "Read the file '{{wrong_path}}'. If the file doesn't exist, search for a file with a similar name in the project and read the correct one.",
       "parameterSchema": {
         "parameters": [
-          { "name": "filename", "type": "string", "generator": "filename_json" },
-          { "name": "wrong_path", "type": "enum", "values": ["./config.json", "./settings/app.json", "./data/config.yaml"] },
-          { "name": "correct_path", "type": "enum", "values": ["./src/config.json", "./lib/settings/app.json", "./config/data/config.yaml"] }
+          {
+            "name": "wrong_path",
+            "type": "paired_set",
+            "sets": [
+              { "wrong_path": "./config.json", "correct_path": "./src/config.json" },
+              { "wrong_path": "./settings.json", "correct_path": "./lib/settings.json" },
+              { "wrong_path": "./data/config.yaml", "correct_path": "./config/data/config.yaml" },
+              { "wrong_path": "./app.json", "correct_path": "./src/app.json" }
+            ]
+          }
         ]
       },
       "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
@@ -22,7 +29,7 @@
         "criteria": [
           {
             "type": "error_handled",
-            "weight": 0.5,
+            "weight": 0.6,
             "description": "Agent recovered from the initial file-not-found error"
           },
           {
@@ -33,9 +40,48 @@
           },
           {
             "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "config|settings|app|data",
+            "description": "Agent found and read a config-related file"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "permission_denied_recovery",
+      "promptTemplate": "Read the file '{{protected_path}}'. You may encounter a permission error. If so, try reading the public copy at '{{public_path}}' instead.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "protected_path",
+            "type": "paired_set",
+            "sets": [
+              { "protected_path": "/etc/shadow", "public_path": "/etc/passwd" },
+              { "protected_path": "./.env", "public_path": "./.env.example" },
+              { "protected_path": "./secrets/keys.json", "public_path": "./config/keys.example.json" }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "error_handled",
+            "weight": 0.5,
+            "description": "Agent handled the permission error"
+          },
+          {
+            "type": "result_correct",
             "weight": 0.3,
-            "expectedTemplate": "{{correct_path}}",
-            "description": "Agent found and read the correct file"
+            "pattern": "public|example|passwd|fallback|alternative",
+            "description": "Agent found and read the alternative file"
+          },
+          {
+            "type": "format_correct",
+            "weight": 0.2,
+            "description": "Response includes a tool call"
           }
         ],
         "passThreshold": 0.7

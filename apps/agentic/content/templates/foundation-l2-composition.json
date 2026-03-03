@@ -69,8 +69,8 @@
           {
             "type": "result_correct",
             "weight": 0.4,
-            "pattern": "\\w{20,}",
-            "description": "Response contains a substantive summary"
+            "pattern": "(\\w+\\s+){10,}",
+            "description": "Response contains a substantive summary (10+ words)"
           },
           {
             "type": "format_correct",
