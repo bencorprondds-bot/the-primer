@@ -91,6 +91,12 @@ export interface PlaylistItem {
   masteryRequired: number;
 }
 
+export interface TutorMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
+}
+
 export interface StudentStatus {
   studentId: string;
   name: string;

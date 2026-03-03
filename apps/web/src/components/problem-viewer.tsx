@@ -4,12 +4,16 @@ import { MathText } from "@primer/math-renderer";
 import { useState, useCallback, useRef } from "react";
 import type { ProblemDefinition } from "@primer/shared/src/content-schema";
 import { checkAnswer as checkAnswerShared } from "@primer/shared";
+import { useTutorChat } from "@/hooks/use-tutor-chat";
+import { TutorPanel } from "./tutor-panel";
 
 interface ProblemViewerProps {
   /** The DB problem ID (for response tracking) */
   problemId: string;
   problem: ProblemDefinition;
   onComplete?: (results: StepResult[]) => void;
+  /** Mastery context for the AI tutor */
+  targetKc?: { pMastery: number };
 }
 
 interface StepResult {
@@ -19,7 +23,7 @@ interface StepResult {
   hintsUsed: number;
 }
 
-export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerProps) {
+export function ProblemViewer({ problemId, problem, onComplete, targetKc }: ProblemViewerProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(
@@ -29,11 +33,21 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
   const [attempts, setAttempts] = useState(0);
   const [stepResults, setStepResults] = useState<StepResult[]>([]);
   const [completed, setCompleted] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const stepStartTime = useRef(Date.now());
 
   const currentStep = problem.steps[currentStepIndex];
   const isLastStep = currentStepIndex === problem.steps.length - 1;
+
+  const tutor = useTutorChat({
+    problemId,
+    problem: { title: problem.title, context: problem.context },
+    currentStep: currentStep ?? problem.steps[0],
+    hintsRevealed,
+    attempts,
+    pMastery: targetKc?.pMastery,
+  });
 
   const checkAnswer = useCallback(() => {
     // Read from DOM ref as fallback — controlled state can desync during hydration
@@ -93,6 +107,8 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
           setFeedback(null);
           setHintsRevealed(0);
           setAttempts(0);
+          setTutorOpen(false);
+          tutor.reset();
           stepStartTime.current = Date.now();
         }
       }, 1200);
@@ -111,6 +127,7 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
     isLastStep,
     stepResults,
     onComplete,
+    tutor,
   ]);
 
   const revealHint = useCallback(() => {
@@ -149,7 +166,8 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
   if (!currentStep) return null;
 
   return (
-    <div className="border border-border rounded-lg p-4 sm:p-6 space-y-4">
+    <div className={`border border-border rounded-lg overflow-hidden ${tutorOpen ? "flex flex-col sm:flex-row" : ""}`}>
+      <div className={`p-4 sm:p-6 space-y-4 ${tutorOpen ? "flex-1 min-w-0" : ""}`}>
       {/* Problem title and context */}
       <div>
         <h3 className="font-semibold text-lg">{problem.title}</h3>
@@ -242,17 +260,38 @@ export function ProblemViewer({ problemId, problem, onComplete }: ProblemViewerP
               <MathText content={hint.content} />
             </div>
           ))}
-          {hintsRevealed < currentStep.hints.length &&
-            feedback !== "correct" && (
+          <div className="flex flex-wrap gap-2 items-center">
+            {hintsRevealed < currentStep.hints.length &&
+              feedback !== "correct" && (
+                <button
+                  onClick={revealHint}
+                  className="text-sm text-amber-600 hover:text-amber-500 transition-colors min-h-[44px] px-2"
+                >
+                  💡 Show hint ({hintsRevealed}/{currentStep.hints.length})
+                </button>
+              )}
+            {feedback !== "correct" && !tutorOpen && (
               <button
-                onClick={revealHint}
-                className="text-sm text-amber-600 hover:text-amber-500 transition-colors min-h-[44px] px-2"
+                onClick={() => setTutorOpen(true)}
+                className="text-sm text-blue-600 hover:text-blue-500 transition-colors min-h-[44px] px-2"
               >
-                💡 Show hint ({hintsRevealed}/{currentStep.hints.length})
+                Ask for help
               </button>
             )}
+          </div>
         </div>
       </div>
+      </div>
+      {tutorOpen && (
+        <TutorPanel
+          messages={tutor.messages}
+          turnsUsed={tutor.turnsUsed}
+          isStreaming={tutor.isStreaming}
+          turnLimitReached={tutor.turnLimitReached}
+          onSend={tutor.sendMessage}
+          onClose={() => setTutorOpen(false)}
+        />
+      )}
     </div>
   );
 }
