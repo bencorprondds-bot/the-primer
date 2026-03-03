@@ -126,25 +126,26 @@ export function selectMostInformativeTask(
 ): string | null {
   if (tasks.length === 0) return null;
 
-  let bestId = tasks[0].id;
-  let bestInfo = -Infinity;
-
-  for (const task of tasks) {
+  // Score each task by information value
+  const scored = tasks.map((task) => {
     const p = expectedScore(agent, task.rating);
     // Fisher information is maximized when p ≈ 0.5
     // I(theta) ∝ p * (1-p) — maximum at p = 0.5
     const information = p * (1 - p);
 
+    // Small jitter for variety when tasks have similar information value.
+    // Without this, identical Elo ratings always pick the first task.
+    const jitter = Math.random() * 0.001;
+
     // Tie-break: prefer less-calibrated tasks (higher sigma)
-    const adjustedInfo = information + (task.rating.sigma / DEFAULT_SIGMA) * 0.01;
+    const adjustedInfo = information + (task.rating.sigma / DEFAULT_SIGMA) * 0.01 + jitter;
 
-    if (adjustedInfo > bestInfo) {
-      bestInfo = adjustedInfo;
-      bestId = task.id;
-    }
-  }
+    return { id: task.id, info: adjustedInfo };
+  });
 
-  return bestId;
+  // Pick the highest-scoring task
+  scored.sort((a, b) => b.info - a.info);
+  return scored[0].id;
 }
 
 /**

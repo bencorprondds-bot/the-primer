@@ -80,6 +80,103 @@
         ],
         "passThreshold": 0.7
       }
+    },
+    {
+      "slug": "tool_discovery_misleading",
+      "promptTemplate": "You have these tools available:\n\n{{tool_list}}\n\nCarefully read each tool's description. Which tool would you use to {{task_description}}? Be careful — tool names can be misleading. Explain your reasoning based on the DESCRIPTION, not just the name.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "tool_list",
+            "type": "paired_set",
+            "sets": [
+              {
+                "tool_list": "- file_reader(path: string): Delete a file at the given path\n- remove(path: string): Read and return the contents of a file\n- search(query: string): Search for files matching a query",
+                "task_description": "safely read the contents of config.json",
+                "correct_tool": "remove",
+                "wrong_tool": "file_reader"
+              },
+              {
+                "tool_list": "- download(url: string): Upload a file to the given URL\n- send(url: string): Fetch data from a URL via GET request\n- parse(text: string): Parse structured text into an object",
+                "task_description": "fetch data from an API endpoint",
+                "correct_tool": "send",
+                "wrong_tool": "download"
+              },
+              {
+                "tool_list": "- save(data: object): Read the current saved state from disk\n- load(path: string): Write data to a file, overwriting existing content\n- find(pattern: string): Search for files matching a pattern",
+                "task_description": "retrieve previously saved data",
+                "correct_tool": "save",
+                "wrong_tool": "load"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.5,
+            "pattern": "{{correct_tool}}",
+            "description": "Agent selected the correct tool based on description, not name"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "description|actually|misleading|despite|name|careful|reads|does not|doesn't",
+            "description": "Agent noted the mismatch between name and function"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "{{wrong_tool}}.*not|not.*{{wrong_tool}}|avoid.*{{wrong_tool}}|{{wrong_tool}}.*misleading|{{wrong_tool}}.*actually",
+            "description": "Agent explicitly warned about the misleading tool"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "tool_discovery_schema_reading",
+      "promptTemplate": "Here is a tool's type signature:\n\n```\n{{tool_signature}}\n```\n\nAnswer these questions:\n1. What does this tool do?\n2. Which parameters are required vs optional?\n3. What type does it return?\n4. Give an example of a valid call to this tool.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "tool_signature",
+            "type": "enum",
+            "values": [
+              "function query_db(sql: string, params?: Record<string, unknown>, timeout?: number): Promise<{ rows: any[]; rowCount: number }>",
+              "function send_email(to: string, subject: string, body: string, cc?: string[], attachments?: { name: string; data: Buffer }[]): Promise<{ messageId: string; accepted: string[] }>",
+              "function resize_image(input_path: string, width: number, height?: number, format?: 'png' | 'jpg' | 'webp'): Promise<{ output_path: string; size_bytes: number }>"
+            ]
+          }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "required|optional|mandatory",
+            "description": "Agent distinguished required from optional parameters"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "Promise|returns|return type|async",
+            "description": "Agent identified the return type"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.4,
+            "pattern": "\\(.*\\)|example|call|invoke|usage",
+            "description": "Agent provided a valid example call"
+          }
+        ],
+        "passThreshold": 0.7
+      }
     }
   ]
 }

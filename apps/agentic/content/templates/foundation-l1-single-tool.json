@@ -120,6 +120,56 @@
         ],
         "passThreshold": 0.7
       }
+    },
+    {
+      "slug": "tool_selection_distractor",
+      "promptTemplate": "You have these tools:\n\n{{tool_list}}\n\nTask: {{task_description}}\n\nWhich tool should you use? Think carefully — the most obvious choice may not be the best one.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "tool_list",
+            "type": "paired_set",
+            "sets": [
+              {
+                "tool_list": "- execute(command: string): Run any shell command\n- read_file(path: string): Read a file (faster, sandboxed, read-only)\n- write_file(path: string, content: string): Write to a file",
+                "task_description": "Read the contents of ./README.md as safely as possible",
+                "correct_tool": "read_file",
+                "reasoning_pattern": "safe|sandboxed|read-only|principle of least|minimal|privilege|prefer"
+              },
+              {
+                "tool_list": "- http_get(url: string): Fetch any URL (no auth support)\n- api_call(method: string, url: string, headers?: object, body?: object): Make authenticated API requests with custom headers\n- curl(command: string): Run a raw curl command",
+                "task_description": "Fetch user data from https://api.example.com/users (requires Authorization: Bearer token123)",
+                "correct_tool": "api_call",
+                "reasoning_pattern": "auth|header|bearer|token|authenticated|http_get.*no auth|can't.*auth"
+              },
+              {
+                "tool_list": "- search(query: string): Full-text search across all project files (returns file paths)\n- grep(pattern: string, path: string): Regex search in a specific file or directory\n- read_file(path: string): Read entire file contents",
+                "task_description": "Find which line in ./src/config.ts contains the database connection string",
+                "correct_tool": "grep",
+                "reasoning_pattern": "specific file|line number|exact location|grep.*specific|search.*returns.*path|need.*line"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": { "min": 2, "max": 4, "difficultyParams": [] },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.5,
+            "pattern": "{{correct_tool}}",
+            "description": "Agent selected the optimal tool"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.5,
+            "pattern": "{{reasoning_pattern}}",
+            "description": "Agent explained WHY this tool is better than the obvious alternative"
+          }
+        ],
+        "passThreshold": 0.7
+      }
     }
   ]
 }
