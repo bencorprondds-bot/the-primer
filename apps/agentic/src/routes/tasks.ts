@@ -21,6 +21,7 @@ import { bktUpdate, type BKTParams } from "../lib/bkt-bridge.js";
 import { storeReflection, getRelevantReflections, formatReflectionsAsContext } from "../lib/error-memory.js";
 import { generateTask, type TaskTemplateInput } from "../lib/task-generator.js";
 import { updateTrust, actionClassFromLevel } from "../lib/trust.js";
+import { branchForCapability } from "./specialization.js";
 import type { AppEnv } from "../types.js";
 
 const MASTERY_THRESHOLD = 0.95;
@@ -73,6 +74,8 @@ taskRoutes.get("/next", authMiddleware, async (c) => {
   const masteryMap = new Map(masteryStates.map((ms) => [ms.capabilityId, ms]));
 
   // Filter to unmastered capabilities with satisfied prerequisites
+  // Sprint 2F: specialization filtering — only serve specialization tasks
+  // matching the agent's focusArea; skip specialization tasks if no focusArea set
   let targetCapability = null;
 
   if (forceCapability) {
@@ -81,6 +84,13 @@ taskRoutes.get("/next", authMiddleware, async (c) => {
     for (const cap of capabilities) {
       const mastery = masteryMap.get(cap.id);
       if (mastery?.masteredAt) continue; // Already mastered
+
+      // Specialization branch filtering
+      const branch = branchForCapability(cap.slug);
+      if (branch !== null) {
+        // This is a specialization capability — only serve if agent's focusArea matches
+        if (agent.focusArea !== branch) continue;
+      }
 
       // Check prerequisites
       const prereqsMet = cap.prerequisites.every((prereq) => {

@@ -140,6 +140,8 @@ async function seed() {
       level === 3 ? "Planning" :
       level === 4 ? "Human Collaboration" :
       level === 5 ? "Meta-Skills" :
+      level === 10 ? "Specialization I" :
+      level === 11 ? "Specialization II" :
       `Level ${level}`;
 
     const mod = await db.module.upsert({

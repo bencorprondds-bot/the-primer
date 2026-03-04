@@ -1,0 +1,197 @@
+{
+  "capability": {
+    "slug": "webdev_design_taste",
+    "name": "Design Taste",
+    "description": "Evaluate visual design quality. Identify spacing, typography, and hierarchy issues. Research competitor patterns. Make aesthetic judgments with rationale.",
+    "level": 10,
+    "prerequisites": ["options_presentation"]
+  },
+  "templates": [
+    {
+      "slug": "design_critique",
+      "promptTemplate": "Critique this UI design:\n\n{{design_description}}\n\nEvaluate these aspects:\n1. Visual hierarchy — is it clear what's most important? Where does the eye go first?\n2. Spacing and alignment — are elements consistently spaced? Is there enough breathing room?\n3. Typography — are font choices, sizes, and weights used consistently and purposefully?\n4. Color usage — does the palette work? Is there enough contrast for readability?\n5. Overall: what's the single biggest issue, and what specific change would fix it?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "design_description",
+            "type": "paired_set",
+            "sets": [
+              {
+                "design_description": "A SaaS landing page: Hero section has a 48px bold title, 16px subtitle, and a gradient CTA button. Below: a 3-column feature grid where each card has a 64px icon, 20px bold title, and 14px description. The problem: every section has the same visual weight. The hero title and feature titles are nearly the same size. CTA button blends into the gradient background. There's 8px padding between all elements uniformly.",
+                "biggest_issue": "Flat visual hierarchy — nothing stands out because everything has equal emphasis"
+              },
+              {
+                "design_description": "A developer documentation page: left sidebar nav with 30+ items in 12px text with no grouping, center content area with code blocks using a font size of 13px while body text is 16px (creating an awkward contrast), and a right 'On this page' sidebar. Headers use 5 different sizes (h1-h5) within a single page. Links are the same color as body text but underlined. Dark mode is just inverted colors (white→black, black→white).",
+                "biggest_issue": "Information overload — too many heading levels, ungrouped nav, and poor dark mode"
+              },
+              {
+                "design_description": "An e-commerce product page: product image takes 70% of the viewport width, product title in 14px regular weight, price in 32px bold red, 'Add to Cart' button is small (120px wide, 32px tall) in a muted gray, reviews section has 5-star ratings but the stars are 10px. The description text is in a narrow column that forces very long line lengths (~120 characters per line). Mobile version is identical to desktop but scaled down.",
+                "biggest_issue": "Inverted priorities — price is visually dominant over the product and CTA"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:hierarchy|emphasis|weight|important|dominant|primary|secondary|eye|attention|focal)\\b",
+            "description": "Evaluated visual hierarchy"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:spacing|padding|margin|whitespace|breathing|alignment|consistent|grid|rhythm)\\b",
+            "description": "Assessed spacing and alignment"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:font|typograph|size|weight|bold|regular|contrast|readab|line.?(?:height|length)|character)\\b",
+            "description": "Evaluated typography choices"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.15,
+            "pattern": "\\b(?:color|palette|contrast|WCAG|accessibility|dark mode|theme|hue|saturation)\\b",
+            "description": "Assessed color and contrast"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:fix|change|increase|decrease|would|should|specific|instead|recommend|make)\\b",
+            "description": "Proposed a specific actionable fix"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "aesthetic_improvement",
+      "promptTemplate": "A developer built this UI but it looks 'off.' They can't articulate what's wrong:\n\n{{current_design}}\n\nProvide 5 specific, implementable improvements ranked by impact:\n1. For each: what's wrong, why it matters, and the exact CSS/design change to fix it\n2. Show the before/after values (e.g., 'change padding from 8px to 16px')\n3. Which improvement alone would make the biggest visual difference?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "current_design",
+            "type": "paired_set",
+            "sets": [
+              {
+                "current_design": "A login form: white card on light gray background (#f0f0f0), card has 1px solid black border, 10px padding all around, form inputs are default browser style with no custom styling, labels are inline (same line as inputs) in 12px Arial, the submit button is default <button> style, there's a 'Forgot password?' link directly under the button with no spacing.",
+                "key_improvements": "Add padding (10→32px), soften the border (black→subtle shadow), style inputs consistently, add vertical spacing between elements"
+              },
+              {
+                "current_design": "A notification toast: appears in top-right corner, bright red background with white text for ALL notification types (success, warning, info, error), text is center-aligned in 11px font, no icon, no close button, disappears after exactly 1 second, width is 400px fixed regardless of content length.",
+                "key_improvements": "Color-code by type, add icons, increase font size, add close button, extend duration, make width responsive to content"
+              },
+              {
+                "current_design": "A user profile card: circular avatar (200px), username directly below in same 16px font as everything else, bio text immediately below with no spacing, 3 stat counters (posts, followers, following) in a row but with inconsistent widths (some numbers are wider), an 'Edit Profile' button that's the same color as the background, making it nearly invisible.",
+                "key_improvements": "Create visual hierarchy with font sizing, add consistent spacing, differentiate button from background, normalize stat counter widths"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:\\d+px|rem|em|#[0-9a-fA-F]{3,6}|rgb|padding|margin|font-size|border|shadow|gap|change.*(?:to|from))\\b",
+            "description": "Provided specific CSS values (not vague suggestions)"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:because|matters|user|visual|readab|usab|clarity|professional|polish|feel)\\b",
+            "description": "Explained WHY each change matters"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:before|after|from|to|currently|change|increase|decrease|replace|instead)\\b",
+            "description": "Showed before/after values"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:biggest|most impact|first|primary|rank|priority|single)\\b",
+            "description": "Identified the highest-impact improvement"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "comp_analysis",
+      "promptTemplate": "You're designing a {{product_type}}. Before starting, you want to research how competitors handle it.\n\nKnown competitors: {{competitors}}\n\nConduct a competitive design analysis:\n1. What design patterns are common across these competitors? (What do they all do?)\n2. What differentiates the best from the worst? (What separates good from mediocre?)\n3. What's a design pattern that NONE of them do well? (An opportunity.)\n4. Based on this analysis, what 3 design principles should guide your own design?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "product_type",
+            "type": "paired_set",
+            "sets": [
+              {
+                "product_type": "developer documentation site",
+                "competitors": "Stripe Docs, Tailwind CSS Docs, MDN Web Docs, Vercel Docs, Prisma Docs"
+              },
+              {
+                "product_type": "project management dashboard",
+                "competitors": "Linear, Notion, Asana, Jira, Monday.com"
+              },
+              {
+                "product_type": "code editor / IDE",
+                "competitors": "VS Code, JetBrains (IntelliJ/WebStorm), Zed, Cursor, Sublime Text"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:common|all|pattern|shared|typical|standard|convention|expect|familiar)\\b",
+            "description": "Identified common design patterns"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:best|worst|better|worse|differenti|stands? out|excels?|weak|strong|quality)\\b",
+            "description": "Distinguished quality levels among competitors"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:none|opportunity|missing|gap|no one|underserved|overlooked|could|should)\\b",
+            "description": "Identified a design opportunity"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:principle|guide|our|design.*should|rule|always|never|prioritize)\\b",
+            "description": "Proposed actionable design principles"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

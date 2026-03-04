@@ -6,6 +6,7 @@ import { agentRoutes } from "./routes/agents.js";
 import { courseRoutes } from "./routes/courses.js";
 import { taskRoutes } from "./routes/tasks.js";
 import { assessRoutes } from "./routes/assess.js";
+import { specializationRoutes } from "./routes/specialization.js";
 
 const app = new Hono();
 
@@ -16,7 +17,7 @@ app.use("*", cors());
 // Health check
 app.get("/", (c) => c.json({
   name: "The Agentic Primer",
-  version: "0.3.0",
+  version: "0.4.0",
   status: "operational"
 }));
 
@@ -25,6 +26,7 @@ app.route("/agents", agentRoutes);
 app.route("/courses", courseRoutes);
 app.route("/tasks", taskRoutes);
 app.route("/assess", assessRoutes);
+app.route("/specialization", specializationRoutes);
 
 // Start
 const port = Number(process.env.PORT) || 3002;

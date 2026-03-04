@@ -1,0 +1,194 @@
+{
+  "capability": {
+    "slug": "webdev_markup_styling",
+    "name": "Markup & Styling Generation",
+    "description": "Produce semantic HTML and well-structured CSS. Understand layout systems (flexbox, grid). Build responsive, accessible markup from specifications.",
+    "level": 10,
+    "prerequisites": ["task_decomposition"]
+  },
+  "templates": [
+    {
+      "slug": "semantic_html",
+      "promptTemplate": "Build the HTML structure for this UI component:\n\n{{component_description}}\n\nRequirements:\n1. Use semantic HTML elements (not just divs and spans)\n2. Include appropriate ARIA attributes for accessibility\n3. Explain your element choices — why <nav> instead of <div>, why <article> instead of <section>, etc.\n4. Note any interactive behavior that would need JavaScript (don't write the JS, just identify what needs it)",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "component_description",
+            "type": "enum",
+            "values": [
+              "A navigation header with: logo (links to home), 5 main nav links, a search input, and a user avatar dropdown menu. Mobile: hamburger menu replaces nav links.",
+              "A pricing comparison table with 3 tiers (Basic, Pro, Enterprise). Each has: name, price, feature list with checkmarks/x-marks, and a CTA button. The 'Pro' tier should be visually highlighted as recommended.",
+              "A blog post page with: article title, author info (avatar, name, date), reading time estimate, main content with headings and images, a table of contents sidebar, and a comment section with nested replies.",
+              "A dashboard card grid with: 4 stat cards (number + label + trend arrow), a line chart area, a recent activity feed (5 items with avatars and timestamps), and a filter toolbar."
+            ],
+            "affectsDifficulty": true
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": [
+          {
+            "param": "component_description",
+            "scaling": "stepped",
+            "steps": {
+              "3": "A navigation header with: logo (links to home), 5 main nav links, a search input, and a user avatar dropdown menu. Mobile: hamburger menu replaces nav links.",
+              "4": "A pricing comparison table with 3 tiers (Basic, Pro, Enterprise). Each has: name, price, feature list with checkmarks/x-marks, and a CTA button. The 'Pro' tier should be visually highlighted as recommended.",
+              "5": "A blog post page with: article title, author info (avatar, name, date), reading time estimate, main content with headings and images, a table of contents sidebar, and a comment section with nested replies."
+            }
+          }
+        ]
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:<nav|<header|<main|<article|<section|<aside|<footer|<figure|<time|<address|semantic)\\b",
+            "description": "Used semantic HTML elements appropriately"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:aria-|role=|alt=|label|accessible|screen reader|keyboard|focus|tab)\\b",
+            "description": "Included accessibility attributes"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:because|instead of|chose|reason|semantic meaning|conveys|implies)\\b",
+            "description": "Explained element choices"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:JavaScript|JS|click|toggle|event|handler|interactive|dynamic|state)\\b",
+            "description": "Identified interactive behavior needing JS"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "css_layout",
+      "promptTemplate": "Create the CSS layout for this design:\n\n{{layout_spec}}\n\nRequirements:\n1. Use modern CSS (flexbox and/or grid — choose the right one for each section)\n2. No fixed pixel widths for the overall layout (responsive by default)\n3. Explain WHY you chose flex vs grid for each section\n4. Handle the edge case: what happens when content is longer/shorter than expected?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "layout_spec",
+            "type": "paired_set",
+            "sets": [
+              {
+                "layout_spec": "A two-column layout: left sidebar (fixed 280px) with navigation items stacked vertically, right main content area (fluid). On screens below 768px, the sidebar collapses to a top bar with horizontal scrolling nav items.",
+                "key_layout_choice": "Grid for the overall two-column layout, flex for the nav items"
+              },
+              {
+                "layout_spec": "A card grid that shows 4 cards per row on desktop, 2 on tablet, 1 on mobile. Cards should be equal height within each row. Each card has a top image, middle text, and a bottom-aligned CTA button regardless of text length.",
+                "key_layout_choice": "Grid with auto-fill/minmax for the card grid, flex column for internal card layout"
+              },
+              {
+                "layout_spec": "A holy grail layout: fixed header (60px), fixed footer (40px), main content with left sidebar (200px) and right sidebar (180px). The main content area should scroll independently while header/footer/sidebars stay fixed. Sidebars collapse on mobile.",
+                "key_layout_choice": "Grid for the overall layout with grid-template-areas, flex for individual sections"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:display:\\s*(?:flex|grid)|flex-|grid-|gap|justify|align|template|auto-fill|minmax|fr)\\b",
+            "description": "Used modern CSS layout properties"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:media|breakpoint|responsive|mobile|tablet|desktop|@media|max-width|min-width)\\b",
+            "description": "Handled responsive breakpoints"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:chose|because|flex.*because|grid.*because|reason|better for|suits|appropriate)\\b",
+            "description": "Justified flex vs grid choices"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:overflow|truncat|ellipsis|min-height|max-height|wrap|shrink|grow|clamp|edge case|longer|shorter)\\b",
+            "description": "Handled content overflow edge cases"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "responsive_adaptation",
+      "promptTemplate": "You have this desktop design:\n\n{{desktop_design}}\n\nAdapt it for mobile (375px viewport):\n1. What changes structurally? (layout shifts, element reordering, hiding/showing)\n2. What changes visually? (font sizes, spacing, touch targets)\n3. Write the CSS media query rules for the mobile adaptation\n4. What content compromises are you making, and are they acceptable?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "desktop_design",
+            "type": "paired_set",
+            "sets": [
+              {
+                "desktop_design": "A product comparison page: 3 products side-by-side in columns, each with image, title, specs table (8 rows), price, and 'Add to Cart' button. Desktop shows all 3 simultaneously for easy comparison.",
+                "mobile_challenge": "Can't show 3 columns side-by-side. Comparison UX fundamentally changes."
+              },
+              {
+                "desktop_design": "A data-heavy admin dashboard: top stats bar (4 metrics), left sidebar with 12 nav items and sub-items, center area with a large data table (10 columns, sortable), right panel with filters. Everything visible at once.",
+                "mobile_challenge": "Table with 10 columns is unusable on mobile. Navigation hierarchy needs collapsing."
+              },
+              {
+                "desktop_design": "A multi-step form wizard: horizontal progress bar showing 5 steps, form fields in a 2-column layout, help text in a right sidebar, and back/next buttons at the bottom.",
+                "mobile_challenge": "2-column form doesn't fit. Progress bar needs reimagining."
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:stack|column|collapse|hide|show|reorder|accordion|tab|swipe|scroll)\\b",
+            "description": "Proposed structural adaptations"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:font|spacing|padding|margin|touch|target|44px|48px|tap|finger)\\b",
+            "description": "Addressed visual and touch-target adjustments"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:@media|max-width|min-width|breakpoint|375|mobile|screen)\\b",
+            "description": "Wrote concrete media query rules"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:compromise|trade-off|sacrifice|lose|hidden|less|simpler|acceptable|instead)\\b",
+            "description": "Acknowledged and justified content compromises"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

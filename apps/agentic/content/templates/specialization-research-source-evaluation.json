@@ -1,0 +1,197 @@
+{
+  "capability": {
+    "slug": "research_source_evaluation",
+    "name": "Source Evaluation",
+    "description": "Assess source credibility, relevance, and reliability. Detect bias. Distinguish authoritative sources from noise. Weight evidence appropriately.",
+    "level": 10,
+    "prerequisites": ["capability_analysis"]
+  },
+  "templates": [
+    {
+      "slug": "credibility_assessment",
+      "promptTemplate": "You found this source while researching {{topic}}:\n\nSource: {{source_description}}\n\nEvaluate its credibility:\n1. Author/publisher authority — who wrote this and why should you trust them?\n2. Recency — is this current enough for the topic?\n3. Methodology — how did they arrive at their claims? Is it empirical, anecdotal, or theoretical?\n4. Corroboration — do other sources agree? If you can't check, what would you look for?\n5. Overall credibility rating: HIGH / MEDIUM / LOW — with justification.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "topic",
+            "type": "paired_set",
+            "sets": [
+              {
+                "topic": "whether Bun is production-ready as a Node.js replacement",
+                "source_description": "A blog post titled 'Why We Migrated to Bun and Never Looked Back' on a startup's engineering blog. Published 4 months ago. The company is a Bun sponsor. Post includes performance benchmarks showing 3x improvement. No mention of issues encountered.",
+                "key_issue": "Conflict of interest (sponsor) and survivorship bias (only positive outcomes reported)"
+              },
+              {
+                "topic": "optimal batch sizes for fine-tuning LLMs",
+                "source_description": "An arXiv preprint from researchers at a major university. Published 2 months ago. Experiments on 3 model sizes (7B, 13B, 70B). Clear methodology section. 15 citations already. Uses standard benchmarks but only evaluates on English text.",
+                "key_issue": "Strong methodology but limited scope (English only) — credible within its bounds"
+              },
+              {
+                "topic": "best practices for Kubernetes resource limits",
+                "source_description": "A Stack Overflow answer with 847 upvotes, written 3 years ago. The author has 50K reputation. Comments note that some advice is outdated since Kubernetes 1.27 changed default behavior. The answer hasn't been edited since original posting.",
+                "key_issue": "Was authoritative but is now partially stale — high historical credibility, reduced current credibility"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:author|publisher|authority|credential|expertise|reputation|who|written by)\\b",
+            "description": "Evaluated author/publisher authority"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:recent|stale|outdated|current|months?|years? ago|updated|old|fresh)\\b",
+            "description": "Assessed recency relative to topic"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:method|empirical|anecdotal|benchmark|experiment|data|evidence|claim|measured|tested)\\b",
+            "description": "Evaluated methodology quality"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.15,
+            "pattern": "\\b(?:bias|conflict|interest|sponsor|incentive|objective|slant|one-sided)\\b",
+            "description": "Identified potential biases"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.15,
+            "pattern": "\\b(?:HIGH|MEDIUM|LOW|credib|rating|trust|reliable|overall)\\b",
+            "description": "Provided clear credibility rating with justification"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "relevance_scoring",
+      "promptTemplate": "Your research question: {{question}}\n\nYou found these {{result_count}} sources. Score each for relevance (1-5) and explain:\n\n{{sources}}\n\nFor each source:\n1. Relevance score (1 = tangential, 5 = directly addresses the question)\n2. What specific part of the question does it help answer?\n3. What parts of the question does it NOT help with?\n\nThen: Which 2 sources would you read first and why?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "question",
+            "type": "paired_set",
+            "sets": [
+              {
+                "question": "How should we handle database connection pooling in a serverless environment (AWS Lambda)?",
+                "result_count": "4",
+                "sources": "A) AWS docs: 'Best Practices for RDS Proxy' — official guide on managed connection pooling\nB) Blog: 'PostgreSQL Connection Limits Explained' — deep dive on PostgreSQL internals\nC) GitHub issue: 'Cold start connection timeout in Lambda' — 47 comments, resolved\nD) Conference talk: 'Serverless at Scale' by an AWS Solutions Architect — covers multiple topics including databases"
+              },
+              {
+                "question": "What testing strategies work best for AI agents that use tool calls?",
+                "result_count": "4",
+                "sources": "A) Paper: 'Evaluating Tool-Augmented LLMs' (2024) — proposes a benchmark suite\nB) Blog: 'How We Test Our Chatbot' — describes testing a customer service bot with canned responses\nC) GitHub repo: 'agent-eval' — open source framework for testing agent behaviors, 2K stars\nD) Tutorial: 'Unit Testing with Jest' — comprehensive guide to JavaScript testing, no AI content"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:score|rating|[1-5]|relevance|relevant|tangential|directly|partially)\\b",
+            "description": "Scored each source for relevance"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:helps? with|addresses|covers|answers|specific|part of|not help|doesn't cover|gap|missing)\\b",
+            "description": "Mapped sources to specific parts of the question"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:first|read|priorit|start with|begin|because|most)\\b",
+            "description": "Prioritized which sources to read first"
+          },
+          {
+            "type": "collaboration_quality",
+            "weight": 0.2,
+            "description": "Quality of reasoning about relevance"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "bias_detection",
+      "promptTemplate": "You're researching {{topic}} and found this source:\n\n{{source_content}}\n\nAnalyze for bias:\n1. What perspective does the author represent? What are their incentives?\n2. What claims are presented as facts vs opinions?\n3. What's conspicuously absent? (What would a critic say is missing?)\n4. How would the conclusions change if the hidden assumptions were wrong?\n5. How should you weight this source given the biases you've identified?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "topic",
+            "type": "paired_set",
+            "sets": [
+              {
+                "topic": "whether to use a NoSQL database for a new project",
+                "source_content": "Blog post from MongoDB's developer advocacy team: 'Modern Applications Demand Modern Databases.' Claims relational databases can't handle modern workloads efficiently. Cites case studies of companies that migrated from PostgreSQL to MongoDB with 10x performance gains. Includes a comparison table where MongoDB wins every category. No mention of transactions, joins, or data integrity constraints."
+              },
+              {
+                "topic": "the effectiveness of pair programming",
+                "source_content": "Academic study: 'Pair Programming Considered Harmful: A Controlled Experiment.' 12 student pairs vs 12 solo developers over 2 weeks. Solo developers produced 40% more code. Conclusion: 'Pair programming reduces productivity.' Published in a mid-tier journal. Authors are known advocates of solo deep work. Sample size is small and uses students, not professionals."
+              },
+              {
+                "topic": "choosing between React and Vue for a new frontend project",
+                "source_content": "Reddit thread with 500+ upvotes: 'React is dead, Vue 3 is the future.' Top comment (200 upvotes): 'After using both for 5 years, Vue is objectively better in every way.' Second comment: 'React's ecosystem is still 10x larger.' Third comment: 'This argument is pointless, use whatever your team knows.' The thread was posted in r/vuejs."
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 4,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:perspective|incentive|motivation|interest|advocate|vendor|promote|sell)\\b",
+            "description": "Identified author perspective and incentives"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:fact|opinion|claim|presented as|stated|asserted|evidence|proof|anecdotal)\\b",
+            "description": "Distinguished facts from opinions"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:missing|absent|omit|ignore|fail to mention|conspicuous|didn't address|overlooked|silent)\\b",
+            "description": "Identified conspicuous absences"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:weight|adjust|discount|grain of salt|caution|still useful|despite|account for|compensate)\\b",
+            "description": "Proposed how to weight the source given biases"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

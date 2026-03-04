@@ -1,0 +1,183 @@
+{
+  "capability": {
+    "slug": "research_synthesis",
+    "name": "Research Synthesis",
+    "description": "Combine findings from multiple sources into coherent analysis. Resolve contradictions. Identify remaining gaps. Produce actionable conclusions.",
+    "level": 11,
+    "prerequisites": ["research_source_discovery", "research_source_evaluation"]
+  },
+  "templates": [
+    {
+      "slug": "finding_integration",
+      "promptTemplate": "You've researched: {{question}}\n\nHere are findings from {{source_count}} sources:\n\n{{findings}}\n\nSynthesize these into a coherent answer:\n1. What do the sources agree on? (the consensus)\n2. Where do they differ? (not contradictions — just different emphasis or scope)\n3. What's the synthesized answer to the original question?\n4. How confident are you in this synthesis? What would increase your confidence?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "question",
+            "type": "paired_set",
+            "sets": [
+              {
+                "question": "What's the best approach for handling authentication in a microservices architecture?",
+                "source_count": "3",
+                "findings": "Source A (AWS architecture blog): Recommends API Gateway with JWT validation at the edge. Each service trusts the gateway. Simple but creates a single point of trust.\n\nSource B (Netflix engineering blog): Uses a custom token service that issues short-lived internal tokens. Each service validates independently. More complex but more resilient.\n\nSource C (OWASP guide): Emphasizes that tokens should be validated at every service boundary, not just the gateway. Recommends mutual TLS between services. Focuses on security over simplicity."
+              },
+              {
+                "question": "How much memory should you allocate per container in a Kubernetes cluster running Node.js applications?",
+                "source_count": "3",
+                "findings": "Source A (DigitalOcean tutorial): Recommends 256MB for small services, 512MB for medium. Based on simple benchmarks.\n\nSource B (Datadog engineering): Shows real production data — 90th percentile Node.js services use 180MB, but garbage collection spikes can hit 2x. Recommends setting limits at 2.5x average usage.\n\nSource C (Node.js docs): V8 heap defaults to ~1.5GB on 64-bit systems. The --max-old-space-size flag controls this. Memory behavior depends heavily on whether you're streaming data or buffering."
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:agree|consensus|all|common|shared|consistent|each|both)\\b",
+            "description": "Identified areas of agreement"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:differ|emphasis|scope|focus|approach|perspective|whereas|while|but)\\b",
+            "description": "Noted differences in emphasis"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:therefore|synthesis|overall|combining|taken together|answer|recommend|conclude)\\b",
+            "description": "Produced a synthesized conclusion"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:confiden|uncertain|more data|would increase|caveat|limited|depends)\\b",
+            "description": "Calibrated confidence in the synthesis"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "contradiction_resolution",
+      "promptTemplate": "Your research has produced contradictory findings:\n\nQuestion: {{question}}\n\n{{contradiction}}\n\nResolve this:\n1. Are they actually contradicting each other, or talking past each other? (different contexts, definitions, scopes?)\n2. If it's a genuine contradiction, which source should you trust more and why?\n3. What additional information would resolve the contradiction definitively?\n4. What should you tell someone who asks you this question right now, given the contradiction?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "question",
+            "type": "paired_set",
+            "sets": [
+              {
+                "question": "Is GraphQL better than REST for mobile applications?",
+                "contradiction": "Source A (mobile engineering team at a large company): 'GraphQL reduced our mobile data usage by 60% because clients only fetch what they need. REST over-fetching was killing our users on slow connections.'\n\nSource B (API architecture consultant): 'GraphQL adds significant complexity and HTTP caching becomes nearly impossible. For most mobile apps, well-designed REST with sparse fieldsets achieves the same result with simpler tooling.'"
+              },
+              {
+                "question": "Should you use TypeScript's strict mode from the start of a new project?",
+                "contradiction": "Source A (TypeScript core team member): 'Always enable strict mode from day one. Retrofitting strict mode later is painful and expensive. The upfront cost is minimal.'\n\nSource B (CTO of a 50-person startup): 'We started with strict mode and it slowed our prototyping phase by 40%. We turned it off for the first 3 months, then re-enabled it when the architecture stabilized. Much smoother.'"
+              },
+              {
+                "question": "How many microservices should a team of 5 engineers operate?",
+                "contradiction": "Source A (infrastructure platform team): 'Our teams of 4-6 each own 8-12 services. With good platform tooling (automated deploys, observability), service count per engineer is a non-issue.'\n\nSource B (post-mortem from a failed startup): 'We had 5 engineers and 15 microservices. We spent 70% of our time on operational overhead. The architecture bankrupted us. A monolith would have shipped faster.'"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 4,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:context|scope|definition|different|apples|comparing|scenario|situation|depends|nuance)\\b",
+            "description": "Explored whether it's a real contradiction or context mismatch"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:trust|weight|credib|evidence|stronger|weaker|more reliable|because|methodology)\\b",
+            "description": "Evaluated which source to trust more"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:additional|resolve|would need|experiment|test|data|benchmark|try)\\b",
+            "description": "Identified what would resolve the contradiction"
+          },
+          {
+            "type": "collaboration_quality",
+            "weight": 0.2,
+            "description": "Produced a useful answer despite uncertainty"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "gap_identification",
+      "promptTemplate": "You've completed initial research on:\n\n{{topic}}\n\nHere's what you've established so far:\n{{established_findings}}\n\nIdentify the gaps:\n1. What important aspects of the topic are NOT covered by your findings?\n2. For each gap: is it because you haven't searched enough, or because the information doesn't exist yet?\n3. Which gaps are critical (would change your conclusions) vs nice-to-have?\n4. Propose a plan to fill the top 2 critical gaps.",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "topic",
+            "type": "paired_set",
+            "sets": [
+              {
+                "topic": "Migrating a production PostgreSQL database from self-hosted to a managed service (RDS, Cloud SQL, Neon)",
+                "established_findings": "- Managed services handle backups, patches, and failover automatically\n- Latency may increase vs co-located self-hosted (network hop)\n- Cost comparison: managed is 2-3x more expensive at the same scale\n- Migration can use pg_dump/pg_restore or logical replication for zero-downtime\n- Connection pooling changes (PgBouncer self-hosted vs built-in pooler)"
+              },
+              {
+                "topic": "Using AI code generation tools (Copilot, Cursor, Claude) in a team with strict code review practices",
+                "established_findings": "- AI-generated code passes code review ~80% of the time (one study)\n- Developers report 30-50% productivity gains on boilerplate tasks\n- Security concerns: AI may generate code with known vulnerability patterns\n- License compliance: some AI tools may reproduce copyrighted code\n- Team adoption is uneven — senior devs skeptical, junior devs enthusiastic"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 4,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:gap|missing|not covered|unknown|unexplored|blind spot|haven't|no information|absent)\\b",
+            "description": "Identified specific gaps in the research"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:hasn't been researched|doesn't exist|not searched|more searching|no one has|novel|frontier)\\b",
+            "description": "Distinguished search gaps from knowledge gaps"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:critical|important|would change|nice-to-have|minor|essential|key|must)\\b",
+            "description": "Prioritized gaps by impact"
+          },
+          {
+            "type": "plan_quality",
+            "weight": 0.2,
+            "description": "Proposed a concrete plan to fill critical gaps"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}

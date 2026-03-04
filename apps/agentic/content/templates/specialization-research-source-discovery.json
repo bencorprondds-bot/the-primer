@@ -1,0 +1,197 @@
+{
+  "capability": {
+    "slug": "research_source_discovery",
+    "name": "Source Discovery",
+    "description": "Find relevant, authoritative sources for a research question. Design multi-strategy search approaches. Know when to widen or narrow the search.",
+    "level": 10,
+    "prerequisites": ["search_strategy"]
+  },
+  "templates": [
+    {
+      "slug": "search_formulation",
+      "promptTemplate": "You're researching this question:\n\n{{research_question}}\n\nDesign a search strategy:\n1. What search queries would you use? List at least 3 distinct queries targeting different aspects.\n2. What sources would you check beyond web search? (academic databases, official docs, community forums, etc.)\n3. What filters or constraints would help narrow results? (date range, domain, language, etc.)\n4. How would you know if your initial search is heading in the right direction vs wasting time?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "research_question",
+            "type": "enum",
+            "values": [
+              "What are the current best practices for implementing WebAuthn passwordless authentication in a production React application?",
+              "How do different LLM inference engines (vLLM, TGI, Ollama) compare in throughput, latency, and memory usage for serving 7B parameter models?",
+              "What architectural patterns are teams using to handle real-time collaborative editing (like Google Docs) at scale?",
+              "What is the current state of WASM-based plugin systems for extending applications, and which languages have the best tooling?",
+              "How are companies handling database migrations in zero-downtime deployments with schema changes that affect millions of rows?"
+            ],
+            "affectsDifficulty": true
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": [
+          {
+            "param": "research_question",
+            "scaling": "stepped",
+            "steps": {
+              "3": "What are the current best practices for implementing WebAuthn passwordless authentication in a production React application?",
+              "4": "How do different LLM inference engines (vLLM, TGI, Ollama) compare in throughput, latency, and memory usage for serving 7B parameter models?",
+              "5": "How are companies handling database migrations in zero-downtime deployments with schema changes that affect millions of rows?"
+            }
+          }
+        ]
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:search|query|queries|google|bing|term|keyword|phrase)\\b",
+            "description": "Formulated concrete search queries"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:academic|arxiv|paper|official|docs|documentation|github|stack overflow|forum|community|reddit|hacker news)\\b",
+            "description": "Identified diverse source types beyond basic web search"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:filter|date|recent|domain|site:|lang|narrow|constrain|refine|exclude)\\b",
+            "description": "Proposed meaningful search filters"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:signal|indicator|heading|right direction|wasting|pivot|abandon|enough|diminish)\\b",
+            "description": "Defined success/failure signals for the search"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "source_type_identification",
+      "promptTemplate": "You need to research this topic:\n\n{{topic}}\n\nFor this specific topic, rank these source types from most to least useful and explain why:\n- Academic papers / preprints\n- Official documentation\n- Blog posts from practitioners\n- GitHub repositories / source code\n- Conference talks / recordings\n- Community forums (Stack Overflow, Reddit, Discord)\n- Industry reports / benchmarks\n\nAlso: What source type is conspicuously missing from this list for your topic? What would you add?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "topic",
+            "type": "paired_set",
+            "sets": [
+              {
+                "topic": "Performance characteristics of B-tree vs LSM-tree storage engines for write-heavy workloads",
+                "best_sources": "Academic papers and benchmarks are primary; blog posts from database engineers are secondary"
+              },
+              {
+                "topic": "How to structure a monorepo with shared TypeScript packages using pnpm workspaces",
+                "best_sources": "Official pnpm docs and real GitHub monorepos are primary; blog posts are secondary"
+              },
+              {
+                "topic": "Security vulnerabilities in JWT token implementations and known bypass techniques",
+                "best_sources": "CVE databases and security research papers are primary; official IETF RFCs are essential"
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.35,
+            "pattern": "\\b(?:rank|most useful|primary|best|first|prioritize|start with|go to)\\b",
+            "description": "Provided a clear ranking with justification"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:because|since|for this topic|specifically|given that|unlike|whereas)\\b",
+            "description": "Justified ranking based on topic-specific reasoning"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:missing|add|also|overlooked|important|not listed|would include)\\b",
+            "description": "Identified a missing source type"
+          },
+          {
+            "type": "collaboration_quality",
+            "weight": 0.15,
+            "description": "Overall quality of reasoning about source fitness"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    },
+    {
+      "slug": "search_refinement",
+      "promptTemplate": "You searched for: \"{{original_query}}\"\n\nResults were {{result_quality}}.\n\nSpecifically: {{result_details}}\n\nRefine your approach:\n1. What went wrong with the original search?\n2. What 2-3 refined queries would you try next?\n3. Should you change source types, not just queries? Why?\n4. At what point would you conclude this topic is under-documented and shift to primary research (experiments, reading source code)?",
+      "parameterSchema": {
+        "parameters": [
+          {
+            "name": "original_query",
+            "type": "paired_set",
+            "sets": [
+              {
+                "original_query": "best database for real-time analytics",
+                "result_quality": "overwhelming — 50+ results, mostly marketing pages and listicles",
+                "result_details": "Top results are 'Top 10 Real-Time Analytics Databases in 2025' style articles. Buried in noise. No technical comparisons with benchmarks."
+              },
+              {
+                "original_query": "MCP server authentication middleware pattern",
+                "result_quality": "sparse — only 3 relevant results, all from the same author",
+                "result_details": "Found one blog post and two GitHub issues. The blog post is 8 months old. No official docs cover this pattern."
+              },
+              {
+                "original_query": "React server component streaming architecture",
+                "result_quality": "mixed — some relevant results but contradictory information",
+                "result_details": "Three articles explain the architecture differently. Two reference Next.js-specific behavior. One is from the React core team but uses outdated API examples."
+              }
+            ]
+          }
+        ]
+      },
+      "difficultyRange": {
+        "min": 3,
+        "max": 5,
+        "difficultyParams": []
+      },
+      "rubricTemplate": {
+        "criteria": [
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:too broad|too narrow|vague|generic|specific|marketing|noise|outdated)\\b",
+            "description": "Diagnosed what went wrong with original search"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.3,
+            "pattern": "\\b(?:instead|try|refine|query|search for|narrow|broaden|site:|filetype)\\b",
+            "description": "Proposed concrete refined queries"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.25,
+            "pattern": "\\b(?:source|type|github|code|paper|docs|forum|change|switch|different)\\b",
+            "description": "Considered changing source types"
+          },
+          {
+            "type": "result_correct",
+            "weight": 0.2,
+            "pattern": "\\b(?:under-documented|primary|experiment|source code|build|test|conclude|give up|diminish)\\b",
+            "description": "Defined when to shift from searching to primary research"
+          }
+        ],
+        "passThreshold": 0.7
+      }
+    }
+  ]
+}
